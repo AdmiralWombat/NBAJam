@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Player>
+
+@{
+    ViewBag.Title = "Players";
+}
+
+<h2>Players </h2>
+<a asp-action="Create" asp-controller="Player" class="btn btn-primary">Create New Player</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(Player player in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => player.Name)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@player.PlayerId">Details</a>
+                    <a asp-action="Edit" asp-route-id="@player.PlayerId">Edit</a>                    
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

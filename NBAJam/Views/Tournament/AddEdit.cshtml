@@ -1,0 +1,167 @@
+﻿@model Tournament
+
+@{
+    ViewBag.Title = $"{ViewBag.Operation} Tournament";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Colored Squares</title>
+    <style>
+        #pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        .square {
+            height: 40px;
+            width: auto;
+            max-width: 200px;
+            cursor: move;
+            border: 2px solid black;
+            position: relative;
+            display: flex; /* Key for dynamic width */
+            align-items: center; /* Key for vertical centering */
+            padding: 0 10px; /* Add some padding for visual comfort */
+            box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
+            border-radius: 14px;
+            white-space: nowrap; /* Prevent text from wrapping */
+            min-width: 100px;
+        }
+
+        .square .name {
+            color: black;
+            font-weight: bold;
+            /* Remove unnecessary positioning styles */
+            margin: 0 auto; /* Center the text horizontally */
+            /* No need for position: absolute, top, vertical-align */
+            overflow: hidden; /* Hide overflowing text */
+            text-overflow: ellipsis; /* Add ellipsis (...) for overflow */
+            white-space: nowrap; /* Prevent text from wrapping */
+            margin-right: 25px; /* Add space for the 'x' */
+            margin-left: 0;
+        }
+
+        .square .x {
+            color: red;
+            font-weight: bold;
+            right: 10px;
+            /* Remove unnecessary positioning styles */
+            margin: 0 auto; /* Center the text horizontally */
+            position: absolute;
+            /* No need for position: absolute, top, vertical-align */
+            display: none; /* Hidden by default */
+            cursor: pointer;
+        }
+
+            
+        #drop-zone .square:hover span {
+            display: block;
+        }        
+
+        #drop-zone {
+            /*width: 300px;*/
+            height: 200px;
+            border: 1px dashed #ccc;
+            margin: 20px auto; /* Center the drop zone */
+            display: flex;
+            flex-wrap: wrap; /* Allow multiple squares to be dropped */
+            gap: 10px;
+            padding: 10px;
+        }
+
+        #log {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 100px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Select Players</h1>
+
+    <div id="pool">Pool </div>
+
+    <div id="drop-zone">Tournament Players</div>
+
+    <script>
+        const pool = document.getElementById('pool');
+        const dropZone = document.getElementById('drop-zone');
+        const colors = ['red', 'green', 'blue', 'yellzow', 'orange', 'purple', 'pink', 'brown'];
+
+       
+        for (let i = 0; i < 20; i++) {
+            const square = document.createElement('div');
+            square.classList.add('square');
+            square.draggable = true;
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            square.style.backgroundColor = randomColor;
+            square.id = `square-${i}`; // Give each square a unique ID
+
+            // Add the name span
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = 'David';
+            nameSpan.classList.add('name');
+            square.appendChild(nameSpan);
+
+            // Add the 'x' span
+            const xSpan = document.createElement('span');
+            xSpan.textContent = 'x';
+            xSpan.classList.add('x');
+            square.appendChild(xSpan);
+
+            pool.appendChild(square);
+
+
+            square.addEventListener('dragstart', (event) => {
+                event.dataTransfer.setData('text', square.id);
+               
+            });           
+        }
+
+
+        dropZone.addEventListener('dragenter', (event) => {
+            event.preventDefault();
+            dropZone.style.border = "2px dashed green";            
+        });
+
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();            
+        });
+
+        dropZone.addEventListener('dragleave', (event) => {
+            dropZone.style.border = "1px dashed #ccc";  
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.style.border = "1px dashed #ccc";
+            const draggedElementId = event.dataTransfer.getData('text');
+            const draggedElement = document.getElementById(draggedElementId);
+            if (draggedElement) {
+                dropZone.appendChild(draggedElement);
+            }
+        });
+
+        // Event listener for the 'x' click
+        dropZone.addEventListener('click', (event) => {
+            if (event.target.className === 'x') { // Check if the 'x' was clicked
+                const square = event.target.parentNode;
+                const squareId = square.id;
+                pool.appendChild(square); // Move back to the pool
+            }
+        });
+
+      
+    </script>
+
+</body>
+</html>

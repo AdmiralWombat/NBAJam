@@ -1,0 +1,25 @@
+﻿@model Player
+
+@{
+    ViewBag.Title = $"Edit {Model.Name} Player";
+}
+
+<h3>Edit Player</h3>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="PlayerId" />
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />       
+        <a asp-action="Index" class="btn btn-default">Back to List</a>
+    </div>
+</form>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="PlayerId" />
+    <input type="submit" value="Delete" class="btn btn-danger" />   
+</form>
