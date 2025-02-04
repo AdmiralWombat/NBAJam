@@ -92,6 +92,10 @@
 
     <div id="drop-zone">Tournament Players</div>
 
+    <div id="partialZone">
+        @await Component.InvokeAsync("CreatePlayer")
+    </div>
+
     <script>
         const pool = document.getElementById('pool');
         const dropZone = document.getElementById('drop-zone');
@@ -159,6 +163,7 @@
                 pool.appendChild(square); // Move back to the pool
             }
         });
+
 
       
     </script>

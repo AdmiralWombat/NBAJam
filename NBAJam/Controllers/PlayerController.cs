@@ -90,5 +90,6 @@ namespace NBAJam.Controllers
             await _players.DeleteAsync(player.PlayerId);
             return RedirectToAction("Index");
         }
+        
     }
 }

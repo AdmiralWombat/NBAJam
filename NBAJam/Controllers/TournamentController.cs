@@ -50,6 +50,12 @@ namespace NBAJam.Controllers
         {
             return View(tournament);
         }
+
+        public IActionResult ViewTestPartial()
+        {
+            Player player = new Player();
+            return PartialView("_partialViewTest", player);
+        }
     }
 }
     
