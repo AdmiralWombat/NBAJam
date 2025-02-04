@@ -1,0 +1,37 @@
+﻿@model Player
+
+<style>
+    .player-form-container {
+        border: 2px solid #ccc; /* Light gray border */
+        padding: 20px; /* Add some padding inside the frame */
+        border-radius: 5px; /* Rounded corners (optional) */
+        margin-bottom: 20px; /* Space below the form */
+    }
+
+    .player-form-title {
+        text-align: center; /* Center the title */
+        margin-bottom: 10px; /* Space below the title */
+        font-size: 1.2em; /* Slightly larger font for the title */
+        font-weight: bold; /* Make the title bold */
+    }
+
+</style>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="player-form-container">
+            <h3 class="player-form-title">Add Player</h3>
+            <form asp-action="Create" method="post">
+                <div class="form-group">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </form>
+
+        </div>
+    </div>
+
+</div>

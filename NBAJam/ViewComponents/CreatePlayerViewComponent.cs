@@ -10,6 +10,8 @@ namespace NBAJam.ViewComponents
         {
             Player player = new Player();
             return View(player);
+
+          
         }
 
     }

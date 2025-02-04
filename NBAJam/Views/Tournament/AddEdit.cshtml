@@ -88,7 +88,16 @@
 
     <h1>Select Players</h1>
 
-    <div id="pool">Pool </div>
+    <div id="pool">Pool 
+
+        @foreach (Player player in ViewBag.AllPlayers)
+        {
+            <div id="@player.Name" class="square" draggable="true" ondragenter="dragEnter(event)" ondragstart="event.dataTransfer.setData('text', '@player.Name')" ondragleave="dragLeave(event)" ondragover="dragOver(event)">
+                <span class="name">@player.Name</span>
+                <span class="x">x</span>
+            </div>
+        }
+    </div>
 
     <div id="drop-zone">Tournament Players</div>
 
@@ -102,7 +111,7 @@
         const colors = ['red', 'green', 'blue', 'yellzow', 'orange', 'purple', 'pink', 'brown'];
 
        
-        for (let i = 0; i < 20; i++) {
+        /*for (let i = 0; i < 20; i++) {
             const square = document.createElement('div');
             square.classList.add('square');
             square.draggable = true;
@@ -129,7 +138,42 @@
                 event.dataTransfer.setData('text', square.id);
                
             });           
+        }*/
+
+        function dragStart(event) 
+        {
+            event.dataTransfer.setData('text', event.squareId);
         }
+
+        function dragEnter(event) 
+        {
+            event.preventDefault();
+            dropZone.style.border = "2px dashed green";
+        }
+
+        function dragOver(event) 
+        {
+            event.preventDefault();
+        }
+
+        function dragLeave(event) 
+        {
+            dropZone.style.border = "1px dashed #ccc";
+        }
+
+        function dragDrop(event) 
+        {
+            event.preventDefault();
+            dropZone.style.border = "1px dashed #ccc";
+            const draggedElementId = event.dataTransfer.getData('text');
+            const draggedElement = document.getElementById(draggedElementId);
+            if (draggedElement) {
+                dropZone.appendChild(draggedElement);
+            }
+        }
+
+        
+
 
 
         dropZone.addEventListener('dragenter', (event) => {
