@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace NBAJam.Models
 {
@@ -7,7 +8,14 @@ namespace NBAJam.Models
         public int TournamentId { get; set; }
         public string Name { get; set; }
         public ICollection<Game> Games { get; set; }
-        public ICollection<TeamTournament> TeamTournaments { get; set; }
-        public ICollection<PlayerTournament> PlayerTournaments { get; set; }
+        [ValidateNever] public ICollection<TeamTournament> TeamTournaments { get; set; }
+        [ValidateNever] public ICollection<PlayerTournament> PlayerTournaments { get; set; }
+
+        public Tournament()
+        {
+            PlayerTournaments = new List<PlayerTournament>();
+            TeamTournaments = new List<TeamTournament>();
+            Games = new List<Game>();
+        }
     }
 }

@@ -92,53 +92,51 @@
 
         @foreach (Player player in ViewBag.AllPlayers)
         {
-            <div id="@player.Name" class="square" draggable="true" ondragenter="dragEnter(event)" ondragstart="event.dataTransfer.setData('text', '@player.Name')" ondragleave="dragLeave(event)" ondragover="dragOver(event)">
+            <div id="@player.PlayerId" class="square" draggable="true" ondragenter="dragEnter(event)" ondragstart="event.dataTransfer.setData('text', '@player.PlayerId')" ondragleave="dragLeave(event)" ondragover="dragOver(event)">
                 <span class="name">@player.Name</span>
                 <span class="x">x</span>
             </div>
         }
     </div>
 
-    <div id="drop-zone">Tournament Players</div>
+    <div id="drop-zone">Tournament Players
+        
+    </div>
+
 
     <div id="partialZone">
-        @await Component.InvokeAsync("CreatePlayer")
+        @await Component.InvokeAsync("CreatePlayer", new { returnToPlayerPage = false })
     </div>
+
+    <form asp-action="AddEdit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="TournamentId" />
+        <input type="hidden" asp-for="TeamTournaments" />
+        <input type="hidden" asp-for="Games" />
+
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" name="Name" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        @foreach (Player player in ViewBag.TournamentPlayers)
+        {
+            <div class="form-check">
+                @{
+                    bool isChecked = Model.PlayerTournaments != null && Model.PlayerTournaments.Any(i => i.PlayerID == player.PlayerId);
+                }
+                <input type="checkbox" class="form-check-input" id="@player.PlayerId" name="playerIDs" value="@player.PlayerId"
+                @(isChecked ? "checked" : "") />
+                <label class="form-check-label" for="@player.PlayerId">@player.Name</label>
+            </div>
+        }
+        <button tpye="submit" class="btn btn-primary">Create</button>
+    </form>
 
     <script>
         const pool = document.getElementById('pool');
-        const dropZone = document.getElementById('drop-zone');
-        const colors = ['red', 'green', 'blue', 'yellzow', 'orange', 'purple', 'pink', 'brown'];
-
-       
-        /*for (let i = 0; i < 20; i++) {
-            const square = document.createElement('div');
-            square.classList.add('square');
-            square.draggable = true;
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            square.style.backgroundColor = randomColor;
-            square.id = `square-${i}`; // Give each square a unique ID
-
-            // Add the name span
-            const nameSpan = document.createElement('span');
-            nameSpan.textContent = 'David';
-            nameSpan.classList.add('name');
-            square.appendChild(nameSpan);
-
-            // Add the 'x' span
-            const xSpan = document.createElement('span');
-            xSpan.textContent = 'x';
-            xSpan.classList.add('x');
-            square.appendChild(xSpan);
-
-            pool.appendChild(square);
-
-
-            square.addEventListener('dragstart', (event) => {
-                event.dataTransfer.setData('text', square.id);
-               
-            });           
-        }*/
+        const dropZone = document.getElementById('drop-zone');      
+   
 
         function dragStart(event) 
         {
@@ -172,10 +170,6 @@
             }
         }
 
-        
-
-
-
         dropZone.addEventListener('dragenter', (event) => {
             event.preventDefault();
             dropZone.style.border = "2px dashed green";            
@@ -204,7 +198,29 @@
             if (event.target.className === 'x') { // Check if the 'x' was clicked
                 const square = event.target.parentNode;
                 const squareId = square.id;
+
+                console.log(squareId);
+
                 pool.appendChild(square); // Move back to the pool
+
+                const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value; // Get the token from the form
+                
+                $.ajax({ // Use $.ajax for more control
+                    type: "POST",
+                    url: '@Url.Action("RemovePlayer", "Tournament")',
+                    data: { playerId: squareId },
+                    headers: {
+                        "RequestVerificationToken": antiForgeryToken // Add the token to the headers
+                    },
+                    success: function (response) {
+                        // Handle success (e.g., remove the element from the UI)
+                        console.log("Player removed successfully");
+                    },
+                    error: function (error) {
+                        // Handle errors
+                        console.error("Error removing player:", error);
+                    }
+                });
             }
         });
 

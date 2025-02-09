@@ -45,17 +45,21 @@ namespace NBAJam.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PlayerId, Name")] Player player)
+        public async Task<IActionResult> Create([Bind("PlayerId, Name")] Player player, bool playerPage)
         {
             if (ModelState.IsValid)
             {
                 await _players.AddAsync(player);
-                return RedirectToAction("Index");
+                if (playerPage)
+                    return RedirectToAction("Index");
+                else
+                    return RedirectToAction("AddEdit", "Tournament");
             }
             return View(player);
         }

@@ -6,10 +6,12 @@ namespace NBAJam.ViewComponents
 {
     public class CreatePlayerViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke()
+        public IViewComponentResult Invoke(bool returnToPlayerPage)
         {
             Player player = new Player();
-            return View(player);
+            PlayerViewModel playerViewModel = new PlayerViewModel();
+            playerViewModel.ReturnToPlayerPage = returnToPlayerPage;
+            return View(playerViewModel);
 
           
         }

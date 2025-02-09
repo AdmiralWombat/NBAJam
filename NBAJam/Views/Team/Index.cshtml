@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Team>
+
+@{
+    ViewBag.Title = "Teams";
+}
+
+<h2>Teams </h2>
+
+<div class="row">
+    @foreach (Team team in Model)
+    {
+        <div class="col-md-4">
+            <form asp-action="Delete" asp-controller="team" method="post">
+                <input type="hidden" asp-for="@team.TeamId" name="id" />
+                <div class="card" style="width: 18rem;">                    
+                    <div class="card-body">
+                        <h5 class="card-title">Team</h5>
+                        
+                    </div>
+                </div>
+
+                <input type="submit" value="Delete" class="btn btn-danger" />
+            </form>
+        </div>
+    }
+</div>

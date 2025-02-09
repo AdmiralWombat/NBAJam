@@ -6,3 +6,18 @@
 
 <h2>Tournaments </h2>
 <a asp-action="AddEdit" asp-controller="Tournament" class="btn btn-primary">Create New Tournament</a>
+
+<div class="row">
+    @foreach (Tournament tournament in Model)
+    {
+        <div class="col-md-4">
+            <form asp-action="AddEdit" asp-controller="Tournament" method="post">
+                <input type="hidden" asp-for="@tournament.TournamentId" name="id" />
+                <div class="card-body">
+                    <h5 class="card-title">@tournament.Name</h5>
+                    <a asp-action="AddEdit" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">Edit</i></a>
+                </div>
+            </form>
+        </div>
+    }
+</div> 

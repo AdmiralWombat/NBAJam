@@ -1,4 +1,4 @@
-﻿@model Player
+﻿@model PlayerViewModel
 
 <style>
     .player-form-container {
@@ -21,14 +21,14 @@
     <div class="col-md-4">
         <div class="player-form-container">
             <h3 class="player-form-title">Add Player</h3>
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" asp-controller="Player" method="post">
+                <input type="hidden" name="playerPage" value="@Model.ReturnToPlayerPage.ToString()" />
                 <div class="form-group">
-                    <label asp-for="Name"></label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <label asp-for="Player.Name"></label>
+                    <input asp-for="Player.Name" class="form-control" />
+                    <span asp-validation-for="Player.Name" class="text-danger"></span>
                 </div>
-                <button type="submit" class="btn btn-primary">Create</button>
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                <button type="submit" class="btn btn-primary">Create</button>                
             </form>
 
         </div>

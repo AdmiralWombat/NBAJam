@@ -1,0 +1,54 @@
+﻿@model Tournament
+
+<h2>@Model.Name - Team Selection</h2>
+
+@{
+    List<Player> players = Model.PlayerTournaments.Select(pt => pt.Player).ToList();
+    
+}
+
+<form asp-action="TeamSetup" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="TournamentId" />
+    <input type="hidden" asp-for="PlayerTournaments" />
+    <input type="hidden" asp-for="Games" />
+
+    <div class="row">
+        @for (int i = 0; i < ViewBag.NumberOfTeams; i++)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Team @(i + 1)
+                    </div>
+
+                    <div class="form-group">
+                        <label for="player1-@i">Player 1:</label>
+                        <select class="form-control" id="player1-@i" name="playerIds[@i][0]">
+                            <option value="">-- Select Player --</option>
+                            @foreach (var player in players)
+                            {
+                                <option value="@player.PlayerId">@player.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="player2-@i">Player 2:</label>
+                        <select class="form-control" id="player2-@i" name="playerIds[@i][1]">
+                            <option value="">-- Select Player --</option>
+                            @foreach (var player in players)
+                            {
+                                <option value="@player.PlayerId">@player.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+
+    <button tpye="submit" class="btn btn-primary">Set Teams</button>
+</form>
+
+
