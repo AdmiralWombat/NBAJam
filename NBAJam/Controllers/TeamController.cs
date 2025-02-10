@@ -17,8 +17,12 @@ namespace NBAJam.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var teams = await _teams.GetAllAsync();
-            return View(await _teams.GetAllAsync());
+            var teams = await _teams.GetAllAsync(new QueryOptions<Team>
+            {
+                Includes = "Players"
+            });
+
+            return View(teams);
         }
 
         [HttpPost]

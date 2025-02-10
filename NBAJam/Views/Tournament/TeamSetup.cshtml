@@ -4,7 +4,7 @@
 
 @{
     List<Player> players = Model.PlayerTournaments.Select(pt => pt.Player).ToList();
-    
+    var teamTournaments = Model.TeamTournaments.ToList();
 }
 
 <form asp-action="TeamSetup" method="post" enctype="multipart/form-data">
@@ -15,6 +15,11 @@
     <div class="row">
         @for (int i = 0; i < ViewBag.NumberOfTeams; i++)
         {
+            var team = teamTournaments.ElementAtOrDefault(i)?.Team;
+            var player1Id = team?.Players.ElementAtOrDefault(0)?.PlayerId ?? 0;
+            var player2Id = team?.Players.ElementAtOrDefault(1)?.PlayerId ?? 0;
+
+
             <div class="col-md-4">
                 <div class="card mb-3">
                     <div class="card-header">
@@ -24,10 +29,14 @@
                     <div class="form-group">
                         <label for="player1-@i">Player 1:</label>
                         <select class="form-control" id="player1-@i" name="playerIds[@i][0]">
-                            <option value="">-- Select Player --</option>
+                            <option value="">-- Select Player --</option>                            
                             @foreach (var player in players)
-                            {
-                                <option value="@player.PlayerId">@player.Name</option>
+                            {                                
+                                var temp = player.PlayerId == player1Id;                               
+                                <option value="@player.PlayerId" selected="@(temp ? "selected" : null)">
+                                    @player.Name
+                                </option>
+                                
                             }
                         </select>
                     </div>
@@ -38,7 +47,10 @@
                             <option value="">-- Select Player --</option>
                             @foreach (var player in players)
                             {
-                                <option value="@player.PlayerId">@player.Name</option>
+                                var temp = player.PlayerId == player2Id;
+                                <option value="@player.PlayerId" selected="@(temp ? "selected" : null)">
+                                    @player.Name
+                                </option>
                             }
                         </select>
                     </div>

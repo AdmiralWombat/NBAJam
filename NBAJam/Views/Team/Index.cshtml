@@ -15,7 +15,14 @@
                 <div class="card" style="width: 18rem;">                    
                     <div class="card-body">
                         <h5 class="card-title">Team</h5>
-                        
+                        <ul>
+                            @foreach (var player in team.Players)
+                            {
+                                <li>
+                                    <a asp-action="Details" asp-controller="Player" asp-route-id="@player.PlayerId" class="btn btn-info">@player.Name</a>
+                                </li>
+                            }
+                        </ul>
                     </div>
                 </div>
 
