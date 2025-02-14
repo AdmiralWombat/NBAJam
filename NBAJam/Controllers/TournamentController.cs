@@ -68,7 +68,7 @@ namespace NBAJam.Controllers
         {
             Tournament tournament = await _tournaments.GetByIdAsync(tournamentId, new QueryOptions<Tournament>
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team",
+                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Games",
             });
 
             if (tournament != null)
