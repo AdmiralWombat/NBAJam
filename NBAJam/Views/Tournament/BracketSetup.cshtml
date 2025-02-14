@@ -1,1 +1,110 @@
-﻿
+﻿@model Tournament
+
+@{
+    ViewBag.Title = "Bracket Setup";
+
+    List<Team> teams = Model.TeamTournaments.Select(pt => pt.Team).ToList();
+}
+
+<style>
+    .bracket {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .round {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .matchup {
+        margin: 20px 0;
+    }
+
+    .team {
+        border: 1px solid #000;
+        padding: 10px;
+        width: 150px;
+        text-align: center;
+    }
+</style>
+
+<h2>@Model.Name - Bracket Setup</h2>
+
+
+<form asp-action="BracketSetup" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="TournamentId" />
+
+    <div class="bracket br-2">
+        @for(int i = 0; i < ViewBag.Rounds; i++)
+        {
+            int round = i + 1;
+            <section aria-labelledby="round-@round">
+                <h4 id="round-@round">Round @round</h4>
+                <ol>
+                    @for(int j = 0; j < ViewBag.Games[i]; j++)
+                    {
+                        <select class="form-control" id="round-@i-game-@j" name="teamIds[@i][@j][0]">
+                            @if (i == 0)
+                            {
+                                <option value="">-- Select Team --</option>
+                                @foreach (var team in teams)
+                                {
+                                    
+                                    <option value="@team?.TeamId">
+                                        @{
+                                            string teamString = "";
+                                        }
+                                        @if (team?.ByeTeam == true)
+                                        {
+                                            teamString = "Bye";
+                                        }
+                                        else
+                                        {
+                                            string name1 = @team?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                            string name2 = @team?.Players.ElementAtOrDefault(1)?.Name ?? "";
+                                            teamString = name1 + " and " + name2;
+
+                                        }
+                                        @teamString
+                                    </option>
+                                }                           
+                            }
+                        </select>
+
+                        <select class="form-control" id="round-@i-game-@j" name="teamIds[@i][@j][1]">
+                            @if (i == 0)
+                            {
+                                <option value="">-- Select Team --</option>
+                                @foreach (var team in teams)
+                                {
+
+                                    <option value="@team?.TeamId">
+                                        @{
+                                            string teamString = "";
+                                        }
+                                        @if (team?.ByeTeam == true)
+                                        {
+                                            teamString = "Bye";
+                                        }
+                                        else
+                                        {
+                                            string name1 = @team?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                            string name2 = @team?.Players.ElementAtOrDefault(1)?.Name ?? "";
+                                            teamString = name1 + " and " + name2;
+
+                                        }
+                                        @teamString
+                                    </option>
+                                }
+                            }
+                        </select>
+                    }
+                </ol>
+            </section>
+        }
+    </div>
+    <button tpye="submit" class="btn btn-primary">Create Tournament</button>
+</form>
+    

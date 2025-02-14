@@ -15,7 +15,9 @@
     <div class="row">
         @for (int i = 0; i < ViewBag.NumberOfTeams; i++)
         {
-            var team = teamTournaments.ElementAtOrDefault(i)?.Team;
+            var team = teamTournaments.ElementAtOrDefault(i + 1)?.Team;
+            if (team?.ByeTeam == true)
+                continue;
             var player1Id = team?.Players.ElementAtOrDefault(0)?.PlayerId ?? 0;
             var player2Id = team?.Players.ElementAtOrDefault(1)?.PlayerId ?? 0;
 

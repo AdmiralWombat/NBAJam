@@ -10,6 +10,8 @@ namespace NBAJam.Models
         public List<Player> Players { get; set; }
         public int TournamentsWon { get; set; }
 
+        public bool ByeTeam { get; set; }
+
         [ValidateNever] public ICollection<TeamTournament> TeamTournaments { get; set; }
 
         public Team()

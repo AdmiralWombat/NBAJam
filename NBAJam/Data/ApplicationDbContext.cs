@@ -48,6 +48,10 @@ namespace NBAJam.Data
                 .HasOne(tt => tt.Tournament)
                 .WithMany(t => t.PlayerTournaments)
                 .HasForeignKey(tt => tt.TournamentId);
+
+            modelBuilder.Entity<Team>().HasData(
+                new Team { TeamId = 1, ByeTeam = true });
+            
         }
     }
 }

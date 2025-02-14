@@ -7,7 +7,7 @@ namespace NBAJam.Models
     {
         public int TournamentId { get; set; }
         public string Name { get; set; }
-        public ICollection<Game> Games { get; set; }
+        public List<Game> Games { get; set; }
         [ValidateNever] public ICollection<TeamTournament> TeamTournaments { get; set; }
         [ValidateNever] public ICollection<PlayerTournament> PlayerTournaments { get; set; }
 

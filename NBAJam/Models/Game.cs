@@ -11,6 +11,12 @@ namespace NBAJam.Models
 
         public ICollection<Team> Teams { get; set; }
         public ICollection<int> TeamPoints { get; set; }
+
+        public Game()
+        {
+            Teams = new List<Team>();
+            TeamPoints = new List<int>();
+        }
    
 
     }
