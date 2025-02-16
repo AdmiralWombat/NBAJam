@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NBAJam.Data;
 
@@ -11,9 +12,11 @@ using NBAJam.Data;
 namespace NBAJam.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250214040546_init10")]
+    partial class init10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,9 +235,6 @@ namespace NBAJam.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GameId"));
 
-                    b.Property<int?>("RoundId")
-                        .HasColumnType("int");
-
                     b.Property<string>("TeamPoints")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -243,8 +243,6 @@ namespace NBAJam.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("GameId");
-
-                    b.HasIndex("RoundId");
 
                     b.HasIndex("TournamentId");
 
@@ -289,27 +287,6 @@ namespace NBAJam.Data.Migrations
                     b.HasIndex("TournamentId");
 
                     b.ToTable("PlayerTournaments");
-                });
-
-            modelBuilder.Entity("NBAJam.Models.Round", b =>
-                {
-                    b.Property<int>("RoundId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoundId"));
-
-                    b.Property<int>("RoundNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TournamentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RoundId");
-
-                    b.HasIndex("TournamentId");
-
-                    b.ToTable("Round");
                 });
 
             modelBuilder.Entity("NBAJam.Models.Team", b =>
@@ -429,12 +406,8 @@ namespace NBAJam.Data.Migrations
 
             modelBuilder.Entity("NBAJam.Models.Game", b =>
                 {
-                    b.HasOne("NBAJam.Models.Round", null)
-                        .WithMany("Games")
-                        .HasForeignKey("RoundId");
-
                     b.HasOne("NBAJam.Models.Tournament", "Tournament")
-                        .WithMany()
+                        .WithMany("Games")
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -466,13 +439,6 @@ namespace NBAJam.Data.Migrations
                     b.Navigation("Player");
 
                     b.Navigation("Tournament");
-                });
-
-            modelBuilder.Entity("NBAJam.Models.Round", b =>
-                {
-                    b.HasOne("NBAJam.Models.Tournament", null)
-                        .WithMany("Rounds")
-                        .HasForeignKey("TournamentId");
                 });
 
             modelBuilder.Entity("NBAJam.Models.Team", b =>
@@ -511,11 +477,6 @@ namespace NBAJam.Data.Migrations
                     b.Navigation("PlayerTournaments");
                 });
 
-            modelBuilder.Entity("NBAJam.Models.Round", b =>
-                {
-                    b.Navigation("Games");
-                });
-
             modelBuilder.Entity("NBAJam.Models.Team", b =>
                 {
                     b.Navigation("Players");
@@ -525,9 +486,9 @@ namespace NBAJam.Data.Migrations
 
             modelBuilder.Entity("NBAJam.Models.Tournament", b =>
                 {
-                    b.Navigation("PlayerTournaments");
+                    b.Navigation("Games");
 
-                    b.Navigation("Rounds");
+                    b.Navigation("PlayerTournaments");
 
                     b.Navigation("TeamTournaments");
                 });

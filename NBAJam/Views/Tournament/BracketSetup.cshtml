@@ -4,6 +4,7 @@
     ViewBag.Title = "Bracket Setup";
 
     List<Team> teams = Model.TeamTournaments.Select(pt => pt.Team).ToList();
+    List<Game> games = Model.Rounds.ElementAtOrDefault(0)?.Games ?? new List<Game>();
 }
 
 <style>
@@ -43,16 +44,19 @@
             <section aria-labelledby="round-@round">
                 <h4 id="round-@round">Round @round</h4>
                 <ol>
-                    @for(int j = 0; j < ViewBag.Games[i]; j++)
+                    @for (int j = 0; j < ViewBag.Games[i]; j++)
                     {
+                        int Team1Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(0)?.TeamId ?? 0;
+                        int Team2Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(1)?.TeamId ?? 0;
+
                         <select class="form-control" id="round-@i-game-@j" name="teamIds[@i][@j][0]">
                             @if (i == 0)
-                            {
+                            { 
                                 <option value="">-- Select Team --</option>
                                 @foreach (var team in teams)
                                 {
-                                    
-                                    <option value="@team?.TeamId">
+                                    bool temp = team.TeamId == Team1Id;
+                                    <option value="@team?.TeamId" selected="@(temp ? "selected" : null)">
                                         @{
                                             string teamString = "";
                                         }
@@ -79,8 +83,8 @@
                                 <option value="">-- Select Team --</option>
                                 @foreach (var team in teams)
                                 {
-
-                                    <option value="@team?.TeamId">
+                                    bool temp = team.TeamId == Team2Id;
+                                    <option value="@team?.TeamId" selected="@(temp ? "selected" : null)">
                                         @{
                                             string teamString = "";
                                         }

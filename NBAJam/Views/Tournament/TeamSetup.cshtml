@@ -10,7 +10,7 @@
 <form asp-action="TeamSetup" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="TournamentId" />
     <input type="hidden" asp-for="PlayerTournaments" />
-    <input type="hidden" asp-for="Games" />
+    <input type="hidden" asp-for="Rounds" />
 
     <div class="row">
         @for (int i = 0; i < ViewBag.NumberOfTeams; i++)

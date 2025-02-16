@@ -9,8 +9,8 @@ namespace NBAJam.Models
         public int TournamentId { get; set; }
         public Tournament Tournament { get; set; }
 
-        public ICollection<Team> Teams { get; set; }
-        public ICollection<int> TeamPoints { get; set; }
+        public List<Team> Teams { get; set; }
+        public List<int> TeamPoints { get; set; }
 
         public Game()
         {
