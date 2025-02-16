@@ -12,6 +12,7 @@ namespace NBAJam.Controllers
         private Repository<Tournament> _tournaments;
         private Repository<Player> _players;
         private Repository<Team> _teams;
+        private Repository<Game> _games;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -20,6 +21,8 @@ namespace NBAJam.Controllers
             _tournaments = new Repository<Tournament>(context);
             _players = new Repository<Player>(context);
             _teams = new Repository<Team>(context);
+            _games = new Repository<Game>(context);
+
 
             _webHostEnvironment = webHostEnvironment;
 
@@ -35,7 +38,7 @@ namespace NBAJam.Controllers
         {
             Tournament tournament = await _tournaments.GetByIdAsync(id, new QueryOptions<Tournament>
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games, Rounds.Games.Teams",
+                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
             });
 
             return View(tournament);
@@ -46,7 +49,7 @@ namespace NBAJam.Controllers
         {
             Tournament tournament = await _tournaments.GetByIdAsync(id, new QueryOptions<Tournament>
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games, Rounds.Games.Teams", 
+                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games", 
             });
 
             if (tournament != null)
@@ -72,7 +75,7 @@ namespace NBAJam.Controllers
         {
             Tournament tournament = await _tournaments.GetByIdAsync(tournamentId, new QueryOptions<Tournament>
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games, Rounds.Games.Teams",
+                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
             });
 
             if (tournament != null)
@@ -95,7 +98,20 @@ namespace NBAJam.Controllers
                         Includes = "Players",
                     });
 
-                    tournament.Rounds[0].Games.Add(new Game() { Tournament = tournament, TournamentId = tournamentId, Teams = new List<Team> { team1, team2 } });
+                    List<Team> teams = new List<Team>();
+                    teams.Add(team1);
+                    teams.Add(team2);
+
+                    Game newGame = new Game();
+                    //newGame.teams = teams;
+                    newGame.Team1 = team1;
+                    newGame.Team2 = team2;
+                    newGame.TournamentId = tournamentId;
+                    newGame.Tournament = tournament;
+
+                    await _games.AddAsync(newGame);
+
+                    tournament.Rounds[0].Games.Add(newGame);
                 }
                 await _tournaments.UpdateAsync(tournament);
 

@@ -46,8 +46,10 @@
                 <ol>
                     @for (int j = 0; j < ViewBag.Games[i]; j++)
                     {
-                        int Team1Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(0)?.TeamId ?? 0;
-                        int Team2Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(1)?.TeamId ?? 0;
+                        //int Team1Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(0)?.TeamId ?? 0;
+                        //int Team2Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(1)?.TeamId ?? 0;
+                        int Team1Id = games?.ElementAtOrDefault(j)?.Team1?.TeamId ?? 0;
+                        int Team2Id = games?.ElementAtOrDefault(j)?.Team2?.TeamId ?? 0;
 
                         <select class="form-control" id="round-@i-game-@j" name="teamIds[@i][@j][0]">
                             @if (i == 0)
