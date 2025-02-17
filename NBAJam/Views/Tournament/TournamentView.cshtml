@@ -2,4 +2,123 @@
 
 @{
     ViewBag.Title = "Bracket";
+    List<Round> rounds = Model.Rounds;
 }
+<head>
+    <style>
+        .square {
+            height: 40px;
+            width: auto;
+            max-width: 200px;
+            cursor: move;
+            border: 2px solid black;
+            position: relative;
+            display: flex; /* Key for dynamic width */
+            align-items: center; /* Key for vertical centering */
+            padding: 0 10px; /* Add some padding for visual comfort */
+            box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
+            border-radius: 14px;
+            white-space: nowrap; /* Prevent text from wrapping */
+            min-width: 100px;
+        }
+
+            .square .name {
+                color: black;
+                font-weight: bold;
+                /* Remove unnecessary positioning styles */
+                margin: 0 auto; /* Center the text horizontally */
+                /* No need for position: absolute, top, vertical-align */
+                overflow: hidden; /* Hide overflowing text */
+                text-overflow: ellipsis; /* Add ellipsis (...) for overflow */
+                white-space: nowrap; /* Prevent text from wrapping */
+                margin-right: 25px; /* Add space for the 'x' */
+                margin-left: 0;
+            }
+
+        .svg-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+            .svg-container svg {
+                width: 100%; /* Make the SVG fill its container */
+                height: 100%; /* Make the SVG fill its container */
+                display: block; /* Prevents small space below SVG in some browsers */
+            }
+    </style>
+</head>
+
+<div class="bracket br-2">
+    @{
+        int roundCount = ViewBag.Rounds;
+        int bracketHeight = 100;
+        double gameSpacing = 150;
+        int topY = 0;
+        List<int> yPointsPrevRound = new List<int>();
+    }
+
+    @for (int i = 0; i < ViewBag.Rounds; i++)
+    {
+        List<Game>? games = rounds.ElementAtOrDefault(i)?.Games ?? null;
+        int round = i + 1;
+
+        double halfHeight = bracketHeight / Math.Pow(2, i + 1); // Half height for this round
+        double roundStartY = (bracketHeight / 2) - halfHeight; // StartY for the round
+
+
+
+        @for (int j = 0; j < ViewBag.Games[i]; j++)
+        {
+            yPointsPrevRound.Add(topY);
+            yPointsPrevRound.Add(topY + bracketHeight);
+
+            <div class="svg-container">
+                <svg>
+                    <polyline points="0, @topY 100, @topY 100, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                              fill="none" stroke="black"
+                              transform="translate(@(i * 100), 0)" />
+                </svg>
+            </div>
+
+            Team?[] teams = { games?.ElementAtOrDefault(j)?.Team1 ?? null, games?.ElementAtOrDefault(j)?.Team2 ?? null };
+
+            /*for (int k = 0; k < 2; k++)
+            {
+            <div id=Team1Id class="square" draggable="true">
+            <span class="name">
+            @{
+            string teamString = "";
+            }
+            @if (teams[k]?.ByeTeam == true)
+            {
+            teamString = "Bye";
+            }
+            else
+            {
+            string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
+            string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+
+            if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
+            teamString = "";
+            else if (string.IsNullOrEmpty(name1))
+            teamString = name2;
+            else if (string.IsNullOrEmpty(name2))
+            teamString = name1;
+            else
+            teamString = name1 + " and " + name2;
+
+            }
+            @teamString
+            </span>
+            </div>
+            }*/
+            topY += bracketHeight + 50;
+        }
+
+        topY = bracketHeight / 2;
+
+        bracketHeight += 50;
+
+    }
+</div>

@@ -41,6 +41,18 @@ namespace NBAJam.Controllers
                 Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
             });
 
+            ViewBag.Rounds = (int)Math.Floor(Math.Log2(tournament.PlayerTournaments.Count));
+            ViewBag.Rounds = 3;
+
+            ViewBag.Games = new int[ViewBag.Rounds];
+
+            int gameCount = 1;
+            for (int i = ViewBag.Rounds - 1; i >= 0; i--)
+            {
+                ViewBag.Games[i] = gameCount;
+                gameCount *= 2;
+            }
+
             return View(tournament);
         }
 
