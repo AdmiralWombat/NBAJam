@@ -51,11 +51,9 @@
 
 <div class="bracket br-2">
     @{
-        int roundCount = ViewBag.Rounds;
         int bracketHeight = 100;
-        double gameSpacing = 150;
         int topY = 0;
-        List<int> yPointsPrevRound = new List<int>();
+        Queue<int> yPointsPrevRound = new Queue<int>();
     }
 
     @for (int i = 0; i < ViewBag.Rounds; i++)
@@ -63,23 +61,38 @@
         List<Game>? games = rounds.ElementAtOrDefault(i)?.Games ?? null;
         int round = i + 1;
 
-        double halfHeight = bracketHeight / Math.Pow(2, i + 1); // Half height for this round
-        double roundStartY = (bracketHeight / 2) - halfHeight; // StartY for the round
-
-
-
         @for (int j = 0; j < ViewBag.Games[i]; j++)
         {
-            yPointsPrevRound.Add(topY);
-            yPointsPrevRound.Add(topY + bracketHeight);
+             if (i == 0)
+                {
+                    <div class="svg-container">
+                        <svg>
+                            <polyline points="0, @topY 100, @topY 100, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                                      fill="none" stroke="black"
+                                      transform="translate(@(i * 100), 0)" />
+                        </svg>
+                    </div>
 
-            <div class="svg-container">
-                <svg>
-                    <polyline points="0, @topY 100, @topY 100, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
-                              fill="none" stroke="black"
-                              transform="translate(@(i * 100), 0)" />
-                </svg>
-            </div>
+                    
+                }
+                else
+                {
+                    int top1 = yPointsPrevRound.Dequeue();
+                    int bottom1 = yPointsPrevRound.Dequeue();
+                    int top2 = yPointsPrevRound.Dequeue();
+                    int bottom2 = yPointsPrevRound.Dequeue();
+
+                    topY = (top1 + bottom1) / 2;
+                    int bottomY = (top2 + bottom2) / 2;
+                    bracketHeight = bottomY - topY;
+                    <div class="svg-container">
+                        <svg>
+                            <polyline points="0, @topY 100, @topY 100, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                                      fill="none" stroke="black"
+                                      transform="translate(@(i * 100), 0)" />
+                        </svg>
+                    </div>                    
+                }
 
             Team?[] teams = { games?.ElementAtOrDefault(j)?.Team1 ?? null, games?.ElementAtOrDefault(j)?.Team2 ?? null };
 
@@ -113,12 +126,11 @@
             </span>
             </div>
             }*/
+
+            yPointsPrevRound.Enqueue(topY);
+            yPointsPrevRound.Enqueue(topY + bracketHeight);
+
             topY += bracketHeight + 50;
-        }
-
-        topY = bracketHeight / 2;
-
-        bracketHeight += 50;
-
+        }     
     }
 </div>
