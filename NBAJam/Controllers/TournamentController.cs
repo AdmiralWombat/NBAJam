@@ -42,7 +42,6 @@ namespace NBAJam.Controllers
             });
 
             ViewBag.Rounds = (int)Math.Floor(Math.Log2(tournament.PlayerTournaments.Count));
-            ViewBag.Rounds = 3;
 
             ViewBag.Games = new int[ViewBag.Rounds];
 

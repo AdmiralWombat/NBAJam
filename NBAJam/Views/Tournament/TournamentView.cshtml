@@ -6,6 +6,12 @@
 }
 <head>
     <style>
+        .name-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
         .square {
             height: 40px;
             width: auto;
@@ -20,6 +26,7 @@
             border-radius: 14px;
             white-space: nowrap; /* Prevent text from wrapping */
             min-width: 100px;
+            
         }
 
             .square .name {
@@ -52,7 +59,8 @@
 <div class="bracket br-2">
     @{
         int bracketHeight = 100;
-        int topY = 0;
+        int topY = 50;
+        int width = 200;
         Queue<int> yPointsPrevRound = new Queue<int>();
     }
 
@@ -67,9 +75,9 @@
                 {
                     <div class="svg-container">
                         <svg>
-                            <polyline points="0, @topY 100, @topY 100, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                            <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
                                       fill="none" stroke="black"
-                                      transform="translate(@(i * 100), 0)" />
+                                      transform="translate(@(i * width), 0)" />
                         </svg>
                     </div>
 
@@ -87,45 +95,51 @@
                     bracketHeight = bottomY - topY;
                     <div class="svg-container">
                         <svg>
-                            <polyline points="0, @topY 100, @topY 100, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                            <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
                                       fill="none" stroke="black"
-                                      transform="translate(@(i * 100), 0)" />
+                                      transform="translate(@(i * width), 0)" />
                         </svg>
-                    </div>                    
-                }
+                </div>
+            }
 
             Team?[] teams = { games?.ElementAtOrDefault(j)?.Team1 ?? null, games?.ElementAtOrDefault(j)?.Team2 ?? null };
 
-            /*for (int k = 0; k < 2; k++)
-            {
-            <div id=Team1Id class="square" draggable="true">
-            <span class="name">
-            @{
-            string teamString = "";
-            }
-            @if (teams[k]?.ByeTeam == true)
-            {
-            teamString = "Bye";
-            }
-            else
-            {
-            string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
-            string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+            <div class="name-container">
+                @if (i == 0)
+                {
+                    int[] namePos = { topY, topY + bracketHeight };
+                    for (int k = 0; k < 2; k++)
+                    {
+                        int pos = namePos[k];
+                        <div id=TeamId class="square" draggable="true" style="left: 0pt; top: @(pos + "pt")";">
+                            <span class="name">
+                            @{
+                            string teamString = "";
+                            }
+                            @if (teams[k]?.ByeTeam == true)
+                            {
+                            teamString = "Bye";
+                            }
+                            else
+                            {
+                                string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
 
-            if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
-            teamString = "";
-            else if (string.IsNullOrEmpty(name1))
-            teamString = name2;
-            else if (string.IsNullOrEmpty(name2))
-            teamString = name1;
-            else
-            teamString = name1 + " and " + name2;
-
-            }
-            @teamString
-            </span>
+                                if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
+                                    teamString = "";
+                                else if (string.IsNullOrEmpty(name1))
+                                    teamString = name2;
+                                else if (string.IsNullOrEmpty(name2))
+                                    teamString = name1;
+                                else
+                                    teamString = name1 + " and " + name2;
+                            }
+                            @teamString
+                            </span>
+                        </div>
+                    }
+                }
             </div>
-            }*/
 
             yPointsPrevRound.Enqueue(topY);
             yPointsPrevRound.Enqueue(topY + bracketHeight);
