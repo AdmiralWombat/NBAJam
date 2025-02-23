@@ -17,15 +17,23 @@
                 height: 100%; /* Make the SVG fill its container */
                 display: block; /* Prevents small space below SVG in some browsers */
                 position: absolute;
+                z-index: 0;
             }
+
+        .modal-high-zindex {
+            z-index: 1050; /* Adjust as needed */
+        }
+
+        .svg-low-zindex {
+            z-index: 0;
+        }
 
             .bracket-container .label-container {
                 position: absolute; /* Position the container absolutely */
                 display: flex; /* Use flexbox */
                 align-items: flex-end; /* Align items to the bottom */
                 left: 0px; /* Adjust the left position as needed */
-                height: 0; /* No height to avoid affecting layout */             
-                
+                height: 0; /* No height to avoid affecting layout */
             }
 
             .bracket-container .team-container {
@@ -42,111 +50,174 @@
                 border-radius: 14px;
                 white-space: nowrap; /* Prevent text from wrapping */
                 min-width: 100px;
+                z-index: 3;
             }
 
 
             .bracket-container .label {
                 color: red; /* Change text color for better visibility */
-                font-weight: bold; /* Make the text bold */                
-                
+                font-weight: bold; /* Make the text bold */
             }
+        
     </style>
 </head>
 
+@functions {
+    string GetDeleteModalId(Game game)
+    {
+        return "#deleteModal" + game.GameId;
+    }
+
+    string GetModalId(Game game)
+    {
+        return "deleteModal" + game.GameId;
+    }
+}
+
+@{
+    int bracketHeight = 100;
+    int topY = 50;
+    int width = 200;
+    Queue<int> yPointsPrevRound = new Queue<int>();
+}
+<div class="bracket-container">
+    
+    @{
+        int i = 0;
+    }
+
+    @for (i = 0; i < ViewBag.Rounds; i++)
+    {
+        List<Game>? games = rounds.ElementAtOrDefault(i)?.Games ?? null;
+        int round = i + 1;
+
+        @for (int j = 0; j < ViewBag.Games[i]; j++)
+        {
+            @if (games?.ElementAtOrDefault(j) != null)
+            {
+                <div class="modal fade modal-high-zindex" id="@GetModalId(games?.ElementAtOrDefault(j))" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure you want to delete @games?.ElementAtOrDefault(j).GameId?</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             }
+
+
+            if (i == 0)
+            {
+
+                <svg class="svg-low-zindex">
+                    <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                              fill="none" stroke="black"
+                              transform="translate(@(i * width), 0)" />
+
+                </svg>
+
+
+            }            
+            else
+            {
+                int top1 = yPointsPrevRound.Dequeue();
+                int bottom1 = yPointsPrevRound.Dequeue();
+                int top2 = yPointsPrevRound.Dequeue();
+                int bottom2 = yPointsPrevRound.Dequeue();
+
+                topY = (top1 + bottom1) / 2;
+                int bottomY = (top2 + bottom2) / 2;
+                bracketHeight = bottomY - topY;
+
+                <svg class="svg-low-zindex">
+                    <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                              fill="none" stroke="black"
+                              transform="translate(@(i * width), 0)" />
+
+                </svg>
+            }
+
+            Team?[] teams = { games?.ElementAtOrDefault(j)?.Team1 ?? null, games?.ElementAtOrDefault(j)?.Team2 ?? null };
+            
+            int[] namePosY = { topY, topY + bracketHeight };
+            for (int k = 0; k < 2; k++)
+            {
+                int posY = namePosY[k];
+                int posX = i * width + 5;
+                <div id=TeamId class="label-container" style="left: @(posX + "px"); top: @(posY + "px")">
+                   
+                    <div class="team-container">
+                            
+                        
+                           
+                            @if (games?.ElementAtOrDefault(j) != null)
+                            {
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(games?.ElementAtOrDefault(j))">
+                                    <i class="bi bi-trash">Delete</i>
+                                </button>
+                                
+                            }
+                     
+                       
+                            <span class="label">
+                                                   
+                                @{
+                                    string teamString = "";
+                                }
+                                @if (teams[k]?.ByeTeam == true)
+                                {
+                                    teamString = "Bye";
+                                }
+                                else
+                                {
+                                    string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                    string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+
+                                    if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
+                                        teamString = "";
+                                    else if (string.IsNullOrEmpty(name1))
+                                        teamString = name2;
+                                    else if (string.IsNullOrEmpty(name2))
+                                        teamString = name1;
+                                    else
+                                        teamString = name1 + " and " + name2;
+                                }
+                                @teamString
+                      
+                            
+                            </span>
+                             
+                        </div>
+                </div>
+            }
+            
+            yPointsPrevRound.Enqueue(topY);
+            yPointsPrevRound.Enqueue(topY + bracketHeight);
+
+            topY += bracketHeight + 50;
+        }
+    }
 
     @{
-        int bracketHeight = 100;
-        int topY = 50;
-        int width = 200;
-        Queue<int> yPointsPrevRound = new Queue<int>();
+        int top = yPointsPrevRound.Dequeue();
+        int bottom = yPointsPrevRound.Dequeue();
+        topY = (top + bottom) / 2;
     }
-    <div class="bracket-container">
-        
-            @for (int i = 0; i < ViewBag.Rounds; i++)
-            {
-                List<Game>? games = rounds.ElementAtOrDefault(i)?.Games ?? null;
-                int round = i + 1;
+    <svg class="svg-low-zindex">
+        <polyline points="0, @topY @width, @topY"
+                  fill="none" stroke="black"
+                  transform="translate(@(i * width), 0)" />
 
-                @for (int j = 0; j < ViewBag.Games[i]; j++)
-                {
-                     if (i == 0)
-                        {
+    </svg>
 
-                    <svg>
-                                    <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
-                                              fill="none" stroke="black"
-                                              transform="translate(@(i * width), 0)" />
+    
 
-                        </svg>
-
-                    
-                        }
-                        else
-                        {
-                            int top1 = yPointsPrevRound.Dequeue();
-                            int bottom1 = yPointsPrevRound.Dequeue();
-                            int top2 = yPointsPrevRound.Dequeue();
-                            int bottom2 = yPointsPrevRound.Dequeue();
-
-                            topY = (top1 + bottom1) / 2;
-                            int bottomY = (top2 + bottom2) / 2;
-                            bracketHeight = bottomY - topY;
-
-                    <svg>
-                        <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
-                                              fill="none" stroke="black"
-                                              transform="translate(@(i * width), 0)" />
-
-                        </svg>
-                    }
-
-                    Team?[] teams = { games?.ElementAtOrDefault(j)?.Team1 ?? null, games?.ElementAtOrDefault(j)?.Team2 ?? null };
-
-
-                    @if (i == 0)
-                    {
-                        int[] namePos = { topY, topY + bracketHeight };
-                        for (int k = 0; k < 2; k++)
-                        {
-                            int pos = namePos[k];
-                            <div id=TeamId class="label-container" draggable="true" style="left: 0px; top: @(pos + "px")">
-                                <div class="team-container">
-                                    <span class="label">
-                                        @{
-                                            string teamString = "";
-                                        }
-                                        @if (teams[k]?.ByeTeam == true)
-                                        {
-                                            teamString = "Bye";
-                                        }
-                                        else
-                                        {
-                                            string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                            string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
-
-                                            if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
-                                                teamString = "";
-                                            else if (string.IsNullOrEmpty(name1))
-                                                teamString = name2;
-                                            else if (string.IsNullOrEmpty(name2))
-                                                teamString = name1;
-                                            else
-                                                teamString = name1 + " and " + name2;
-                                        }
-                                        @teamString
-                                    </span>
-                                </div>
-                            </div>
-                        }
-                    }
-                
-
-                    yPointsPrevRound.Enqueue(topY);
-                    yPointsPrevRound.Enqueue(topY + bracketHeight);
-
-                    topY += bracketHeight + 50;
-                }     
-            }
-        
-    </div>
+</div>
 

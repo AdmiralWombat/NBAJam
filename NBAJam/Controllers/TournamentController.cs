@@ -60,7 +60,7 @@ namespace NBAJam.Controllers
         {
             Tournament tournament = await _tournaments.GetByIdAsync(id, new QueryOptions<Tournament>
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games", 
+                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
             });
 
             if (tournament != null)
@@ -82,7 +82,7 @@ namespace NBAJam.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> BracketSetup(int tournamentId, int[][][] teamIds )
+        public async Task<IActionResult> BracketSetup(int tournamentId, int[][][] teamIds)
         {
             Tournament tournament = await _tournaments.GetByIdAsync(tournamentId, new QueryOptions<Tournament>
             {
@@ -151,7 +151,7 @@ namespace NBAJam.Controllers
         {
             Tournament tournament = await _tournaments.GetByIdAsync(tournamentId, new QueryOptions<Tournament>
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team", 
+                Includes = "PlayerTournaments.Player, TeamTournaments.Team",
             });
 
             if (tournament != null)
@@ -229,14 +229,14 @@ namespace NBAJam.Controllers
 
                 return RedirectToAction("BracketSetup", "Tournament", new { id = tournament.TournamentId });
             }
-            return RedirectToAction("Index", "Tournament");            
+            return RedirectToAction("Index", "Tournament");
         }
 
         [HttpGet]
         public async Task<IActionResult> AddEdit(int id)
         {
             ViewBag.AllPlayers = await _players.GetAllAsync();
-            
+
             if (id == 0)
             {
                 //add
@@ -249,7 +249,7 @@ namespace NBAJam.Controllers
                 {
                     Includes = "PlayerTournaments.Player",
                 });
-                ViewBag.Operation = "Edit";                
+                ViewBag.Operation = "Edit";
                 return View(tournament);
             }
         }
@@ -269,7 +269,7 @@ namespace NBAJam.Controllers
                         tournament.PlayerTournaments?.Add(new PlayerTournament { PlayerID = id, TournamentId = tournament.TournamentId });
                     }
                     await _tournaments.AddAsync(tournament);
-                    
+
                 }
                 else
                 {
@@ -331,6 +331,12 @@ namespace NBAJam.Controllers
             {
                 return BadRequest();
             }
+        }
+
+      
+        public async Task<IActionResult> test()
+        {
+            return View();
         }
 
     }
