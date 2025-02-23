@@ -58,6 +58,10 @@
                 color: red; /* Change text color for better visibility */
                 font-weight: bold; /* Make the text bold */
             }
+
+        .modal-backdrop {
+            z-index: -1;
+        }
         
     </style>
 </head>
@@ -93,26 +97,7 @@
 
         @for (int j = 0; j < ViewBag.Games[i]; j++)
         {
-            @if (games?.ElementAtOrDefault(j) != null)
-            {
-                <div class="modal fade modal-high-zindex" id="@GetModalId(games?.ElementAtOrDefault(j))" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure you want to delete @games?.ElementAtOrDefault(j).GameId?</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-             }
-
-
+            
             if (i == 0)
             {
 
@@ -160,39 +145,51 @@
                             @if (games?.ElementAtOrDefault(j) != null)
                             {
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(games?.ElementAtOrDefault(j))">
-                                    <i class="bi bi-trash">Delete</i>
-                                </button>
-                                
-                            }
-                     
-                       
-                            <span class="label">
-                                                   
-                                @{
-                                    string teamString = "";
-                                }
-                                @if (teams[k]?.ByeTeam == true)
-                                {
-                                    teamString = "Bye";
-                                }
-                                else
-                                {
-                                    string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                    string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
-
-                                    if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
-                                        teamString = "";
-                                    else if (string.IsNullOrEmpty(name1))
-                                        teamString = name2;
-                                    else if (string.IsNullOrEmpty(name2))
-                                        teamString = name1;
+                                    @{
+                                        string teamString = "";
+                                    }
+                                    @if (teams[k]?.ByeTeam == true)
+                                    {
+                                        teamString = "Bye";
+                                    }
                                     else
-                                        teamString = name1 + " and " + name2;
-                                }
-                                @teamString
-                      
-                            
-                            </span>
+                                    {
+                                        string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                        string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+
+                                        if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
+                                            teamString = "";
+                                        else if (string.IsNullOrEmpty(name1))
+                                            teamString = name2;
+                                        else if (string.IsNullOrEmpty(name2))
+                                            teamString = name1;
+                                        else
+                                            teamString = name1 + " and " + name2;
+                                    }
+                                    @teamString
+                                </button>
+
+
+                                <div class="modal fade modal-high-zindex" id="@GetModalId(games?.ElementAtOrDefault(j))" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Game @games?.ElementAtOrDefault(j).GameId</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Ok</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                            }
+                            else
+                            {
+                                <span class="label"></span>
+                            }                           
                              
                         </div>
                 </div>
