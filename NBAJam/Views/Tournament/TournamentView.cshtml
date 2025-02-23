@@ -28,41 +28,40 @@
             z-index: 0;
         }
 
-            .bracket-container .label-container {
-                position: absolute; /* Position the container absolutely */
-                display: flex; /* Use flexbox */
-                align-items: flex-end; /* Align items to the bottom */
-                left: 0px; /* Adjust the left position as needed */
-                height: 0; /* No height to avoid affecting layout */
-            }
+        .bracket-container .label-container {
+            position: absolute; /* Position the container absolutely */
+            display: flex; /* Use flexbox */
+            align-items: flex-end; /* Align items to the bottom */
+            left: 0px; /* Adjust the left position as needed */
+            height: 0; /* No height to avoid affecting layout */
+        }
 
-            .bracket-container .team-container {
-                height: 40px;
-                width: auto;
-                max-width: 200px;
-                cursor: move;
-                border: 2px solid black;
-                position: relative;
-                display: flex; /* Key for dynamic width */
-                align-items: center; /* Key for vertical centering */
-                padding: 0 10px; /* Add some padding for visual comfort */
-                box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
-                border-radius: 14px;
-                white-space: nowrap; /* Prevent text from wrapping */
-                min-width: 100px;
-                z-index: 3;
-            }
+        .bracket-container .team-container {
+            height: 40px;
+            width: auto;
+            max-width: 200px;
+            cursor: move;
+            border: 2px solid black;
+            position: relative;
+            display: flex; /* Key for dynamic width */
+            align-items: center; /* Key for vertical centering */
+            padding: 0 10px; /* Add some padding for visual comfort */
+            box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
+            border-radius: 14px;
+            white-space: nowrap; /* Prevent text from wrapping */
+            min-width: 100px;
+            z-index: 3;
+        }
 
 
-            .bracket-container .label {
-                color: red; /* Change text color for better visibility */
-                font-weight: bold; /* Make the text bold */
-            }
+        .bracket-container .label {
+            color: red; /* Change text color for better visibility */
+            font-weight: bold; /* Make the text bold */
+        }
 
         .modal-backdrop {
             z-index: -1;
         }
-        
     </style>
 </head>
 
@@ -85,7 +84,7 @@
     Queue<int> yPointsPrevRound = new Queue<int>();
 }
 <div class="bracket-container">
-    
+
     @{
         int i = 0;
     }
@@ -97,7 +96,7 @@
 
         @for (int j = 0; j < ViewBag.Games[i]; j++)
         {
-            
+
             if (i == 0)
             {
 
@@ -109,7 +108,7 @@
                 </svg>
 
 
-            }            
+            }
             else
             {
                 int top1 = yPointsPrevRound.Dequeue();
@@ -130,52 +129,62 @@
             }
 
             Team?[] teams = { games?.ElementAtOrDefault(j)?.Team1 ?? null, games?.ElementAtOrDefault(j)?.Team2 ?? null };
-            
+            Game? game = games?.ElementAtOrDefault(j);
             int[] namePosY = { topY, topY + bracketHeight };
             for (int k = 0; k < 2; k++)
             {
                 int posY = namePosY[k];
                 int posX = i * width + 5;
                 <div id=TeamId class="label-container" style="left: @(posX + "px"); top: @(posY + "px")">
-                   
+
                     <div class="team-container">
-                            
-                        
-                           
-                            @if (games?.ElementAtOrDefault(j) != null)
-                            {
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(games?.ElementAtOrDefault(j))">
-                                    @{
-                                        string teamString = "";
-                                    }
-                                    @if (teams[k]?.ByeTeam == true)
-                                    {
-                                        teamString = "Bye";
-                                    }
+
+
+
+                        @if (game != null)
+                        {
+
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(game)">
+                                @{
+                                    string teamString = "";
+                                }
+                                @if (teams[k]?.ByeTeam == true)
+                                {
+                                    teamString = "Bye";
+                                }
+                                else
+                                {
+                                    string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                    string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+
+                                    if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
+                                        teamString = "";
+                                    else if (string.IsNullOrEmpty(name1))
+                                        teamString = name2;
+                                    else if (string.IsNullOrEmpty(name2))
+                                        teamString = name1;
                                     else
-                                    {
-                                        string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                        string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+                                        teamString = name1 + " and " + name2;
+                                }
+                                @teamString
+                            </button>
 
-                                        if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
-                                            teamString = "";
-                                        else if (string.IsNullOrEmpty(name1))
-                                            teamString = name2;
-                                        else if (string.IsNullOrEmpty(name2))
-                                            teamString = name1;
-                                        else
-                                            teamString = name1 + " and " + name2;
-                                    }
-                                    @teamString
-                                </button>
-
-
-                                <div class="modal fade modal-high-zindex" id="@GetModalId(games?.ElementAtOrDefault(j))" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <form asp-action="AddGame" asp-controller="Tournament" method="post">
+                                <input type="hidden" asp-for="@game.GameId" name="id" />
+                                <div class="modal fade modal-high-zindex" id="@GetModalId(game)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Game @games?.ElementAtOrDefault(j).GameId</h1>
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Game @game.GameId</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label asp-for="TournamentId">@game.Team1.Name</label>
+                                                    <input asp-for="TournamentId" class="form-control" name="Team1Points" />
+                                                    <span asp-validation-for="TournamentId" class="text-danger"></span>
+                                                </div>
                                             </div>
 
                                             <div class="modal-footer">
@@ -184,17 +193,18 @@
                                             </div>
                                         </div>
                                     </div>
-                            </div>
-                            }
-                            else
-                            {
-                                <span class="label"></span>
-                            }                           
-                             
-                        </div>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="label"></span>
+                        }
+
+                    </div>
                 </div>
             }
-            
+
             yPointsPrevRound.Enqueue(topY);
             yPointsPrevRound.Enqueue(topY + bracketHeight);
 
@@ -214,7 +224,7 @@
 
     </svg>
 
-    
+
 
 </div>
 

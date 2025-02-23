@@ -14,6 +14,23 @@ namespace NBAJam.Models
 
         [ValidateNever] public ICollection<TeamTournament> TeamTournaments { get; set; }
 
+        public string Name
+        {
+            get
+            {
+                string name = "";
+                int playerCount = 0;
+                foreach (var player in Players)
+                {
+                    name += player.Name;
+                    playerCount++;
+                    if (playerCount < Players.Count)
+                        name += " and ";
+                }
+                return name;
+            }
+        }
+
         public Team()
         {
             Players = new List<Player>();

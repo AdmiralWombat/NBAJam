@@ -333,8 +333,9 @@ namespace NBAJam.Controllers
             }
         }
 
-      
-        public async Task<IActionResult> test()
+
+        [HttpPost]
+        public async Task<IActionResult> AddGame(int id)
         {
             return View();
         }
