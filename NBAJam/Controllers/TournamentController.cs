@@ -72,6 +72,57 @@ namespace NBAJam.Controllers
                 gameCount *= 2;
             }
 
+            //check byes
+            int roundIndex = 0;            
+            foreach (Round round in tournament.Rounds)
+            {
+                int gameIndex = 0;
+                foreach (Game game in round.Games)
+                {
+                    int newGameIndex = gameIndex / 2;
+                    Game newGame = tournament.Rounds.ElementAtOrDefault(roundIndex++)?.Games.ElementAtOrDefault(newGameIndex);
+                    if (game != null && game.Team1 != null && game.Team1.ByeTeam)
+                    {
+                        if (newGame != null)
+                        {
+                            if (gameIndex % 2 == 0 && newGame.Team1 == null)
+                            {
+                                newGame.Team1 = game.Team2;
+                                await _games.UpdateAsync(newGame);
+                                updatedTournament = true;
+                            }
+                            else if (gameIndex % 2 != 0 && newGame.Team2 == null)
+                            {
+                                newGame.Team2 = game.Team2;
+                                await _games.UpdateAsync(newGame);
+                                updatedTournament = true;
+                            }                           
+                        }
+                    }
+                    else if (game != null && game.Team2 != null && game.Team2.ByeTeam)
+                    {
+                        if (newGame != null)
+                        {
+                            if (gameIndex % 2 == 0 && newGame.Team1 == null)
+                            {
+                                newGame.Team1 = game.Team1;
+                                await _games.UpdateAsync(newGame);
+                                updatedTournament = true;
+                            }
+                            else if (gameIndex % 2 != 0 && newGame.Team2 == null)
+                            {
+                                newGame.Team2 = game.Team1;
+                                await _games.UpdateAsync(newGame);
+                                updatedTournament = true;
+                            }                           
+                        }
+                    }
+                    gameIndex++;
+                }
+                roundIndex++;
+            }
+
+
             if (updatedTournament)
                 await _tournaments.UpdateAsync(tournament);
 
@@ -381,22 +432,29 @@ namespace NBAJam.Controllers
 
             Tournament tournament = await _tournaments.GetByIdAsync(tournamentId, new QueryOptions<Tournament>
             {
-                Includes = "Rounds"
+                Includes = "Rounds, Rounds.Games"
             });
 
-            if (round + 1 > tournament.Rounds.Count)
+            int newGameIndex = gameIndex / 2;
+            Round? newRound = tournament.Rounds.ElementAtOrDefault(round + 1);
+            if (newRound != null)
             {
-                Round newRound = new Round();
-                
-                //newRound.Games.Add
-                tournament.Rounds.Add(new Round());
+                Game? newGame = newRound.Games.ElementAtOrDefault(newGameIndex);
+                if (newGame != null)
+                {
+                    Team winningTeam = team1Points > team2Points ? team1 : team2;
+                    if (gameIndex % 2 == 0)
+                        newGame.Team1 = winningTeam;
+                    else
+                        newGame.Team2 = winningTeam;
+                   
+                    newGame.Tournament = tournament;
+                    newGame.TournamentId = tournamentId;
 
-            }
-
-            int newGameIndex = 0;
-            Game newGame = new Game();
-            
-            //tournament.Rounds[round].Games[newGameIndex] = newGame;
+                    await _games.UpdateAsync(newGame);
+                }
+            }   
+          
 
             await _tournaments.UpdateAsync(tournament);
 

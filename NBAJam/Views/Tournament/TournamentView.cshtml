@@ -39,7 +39,7 @@
         .bracket-container .team-container {
             height: 40px;
             width: auto;
-            max-width: 200px;
+            max-width: 170px;
             cursor: move;
             border: 2px solid black;
             position: relative;
@@ -49,7 +49,21 @@
             box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
             border-radius: 14px;
             white-space: nowrap; /* Prevent text from wrapping */
-            min-width: 100px;
+            min-width: 170px;
+            z-index: 3;
+        }
+
+        .bracket-container .score-container {
+            height: 40px;
+            width: auto;
+            max-width: 50px;          
+            position: relative;
+            display: flex; /* Key for dynamic width */
+            align-items: center; /* Key for vertical centering */
+            padding: 0 5px;   
+            
+            white-space: nowrap; /* Prevent text from wrapping */
+            min-width: 50px;
             z-index: 3;
         }
 
@@ -168,6 +182,7 @@
                                 }
                                 @teamString
                             </button>
+                           
 
                             <form asp-action="AddGame" asp-controller="Tournament" method="post">
                                 <input type="hidden" asp-for="TournamentId" />
@@ -206,11 +221,17 @@
                         }
                         else
                         {
-                            <span class="label"></span>
+                            
                         }
 
                     </div>
+
+                    <div class="score-container">
+                        13
+                    </div>
+
                 </div>
+                
             }
 
             yPointsPrevRound.Enqueue(topY);
