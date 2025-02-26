@@ -427,6 +427,17 @@ namespace NBAJam.Controllers
 
             game.Team1Points = team1Points;
             game.Team2Points = team2Points;
+            game.Team1Won = false;
+            game.Team2Won = false;
+
+            if (team1Points > team2Points)
+            {
+                game.Team1Won = true;
+            }
+            else if (team2Points > team1Points)
+            {
+                game.Team2Won = true;
+            }
 
             await _games.UpdateAsync(game);
 
@@ -442,8 +453,8 @@ namespace NBAJam.Controllers
                 Game? newGame = newRound.Games.ElementAtOrDefault(newGameIndex);
                 if (newGame != null)
                 {
-                    Team winningTeam = team1Points > team2Points ? team1 : team2;
-                    if (gameIndex % 2 == 0)
+                    Team winningTeam = team1Points > team2Points ? team1 : team2;                    
+                    if (gameIndex % 2 == 0)                    
                         newGame.Team1 = winningTeam;
                     else
                         newGame.Team2 = winningTeam;

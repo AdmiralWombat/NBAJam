@@ -16,6 +16,10 @@ namespace NBAJam.Models
 
         public int Team1Points { get; set; }
         public int Team2Points { get; set; }
+
+        public bool Team1Won { get; set; }
+        public bool Team2Won { get; set; }
+
         public Game()
         {
             

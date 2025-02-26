@@ -51,6 +51,7 @@
             white-space: nowrap; /* Prevent text from wrapping */
             min-width: 170px;
             z-index: 3;
+            
         }
 
         .bracket-container .score-container {
@@ -68,9 +69,11 @@
         }
 
 
-        .bracket-container .label {
-            color: red; /* Change text color for better visibility */
-            font-weight: bold; /* Make the text bold */
+        .bracket-container .label {            
+            font-weight: bold; /* Make the text bold */            
+            background: none;
+            border: none;
+            padding: 0;
         }
 
         .modal-backdrop {
@@ -151,38 +154,73 @@
                 int posX = i * width + 5;
                 <div id=TeamId class="label-container" style="left: @(posX + "px"); top: @(posY + "px")">
 
-                    <div class="team-container">
+                    @{
+                        string teamColor = "none";
+
+                        if ((k == 0 && game?.Team1Won == true) || (k == 1 && game?.Team2Won == true))
+                            teamColor = "green";
+                    }
+                    <div class="team-container" style="background:@teamColor">
 
 
 
                         @if (game != null)
                         {
-
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(game)">
-                                @{
-                                    string teamString = "";
-                                }
-                                @if (teams[k]?.ByeTeam == true)
-                                {
-                                    teamString = "Bye";
-                                }
-                                else
-                                {
-                                    string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                    string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
-
-                                    if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
-                                        teamString = "";
-                                    else if (string.IsNullOrEmpty(name1))
-                                        teamString = name2;
-                                    else if (string.IsNullOrEmpty(name2))
-                                        teamString = name1;
+                            if (teams[0]?.ByeTeam == false && teams[1]?.ByeTeam == false)
+                            {
+                                <button type="button" class="label" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(game)">
+                                    @{
+                                        string teamString = "";
+                                    }
+                                    @if (teams[k]?.ByeTeam == true)
+                                    {
+                                        teamString = "Bye";
+                                    }
                                     else
-                                        teamString = name1 + " and " + name2;
-                                }
-                                @teamString
-                            </button>
-                           
+                                    {
+                                        string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                        string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+
+                                        if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
+                                            teamString = "";
+                                        else if (string.IsNullOrEmpty(name1))
+                                            teamString = name2;
+                                        else if (string.IsNullOrEmpty(name2))
+                                            teamString = name1;
+                                        else
+                                            teamString = name1 + " and " + name2;
+                                    }
+                                    @teamString
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="label">
+                                    @{
+                                        string teamString = "";
+                                    }
+                                    @if (teams[k]?.ByeTeam == true)
+                                    {
+                                        teamString = "Bye";
+                                    }
+                                    else
+                                    {
+                                        string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
+                                        string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+
+                                        if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
+                                            teamString = "";
+                                        else if (string.IsNullOrEmpty(name1))
+                                            teamString = name2;
+                                        else if (string.IsNullOrEmpty(name2))
+                                            teamString = name1;
+                                        else
+                                            teamString = name1 + " and " + name2;
+                                    }
+                                    @teamString
+                                </span>
+                            }
+
 
                             <form asp-action="AddGame" asp-controller="Tournament" method="post">
                                 <input type="hidden" asp-for="TournamentId" />
@@ -226,9 +264,12 @@
 
                     </div>
 
-                    <div class="score-container">
-                        13
-                    </div>
+                    @if (teams[0]?.ByeTeam == false && teams[1]?.ByeTeam == false)
+                    {
+                        <div class="score-container">
+                            @(k == 0 ? games?.ElementAtOrDefault(j)?.Team1Points : games?.ElementAtOrDefault(j)?.Team2Points)
+                        </div>
+                    }
 
                 </div>
                 
