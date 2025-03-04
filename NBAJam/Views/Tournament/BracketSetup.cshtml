@@ -1,134 +1,213 @@
-﻿@model Tournament
+﻿@model BracketSetupViewModel
 
 @{
     ViewBag.Title = "Bracket Setup";
 
-    List<Team> teams = Model.TeamTournaments.Select(pt => pt.Team).ToList();
-    List<Game> games = Model.Rounds.ElementAtOrDefault(0)?.Games ?? new List<Game>();
+  
 }
 
-<style>
-    .bracket {
-        display: flex;
-        justify-content: space-between;
-    }
+<head>
+    <style>
+        .bracket-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
 
-    .round {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+            .bracket-container svg {
+                width: 100%; /* Make the SVG fill its container */
+                height: 100%; /* Make the SVG fill its container */
+                display: block; /* Prevents small space below SVG in some browsers */
+                position: absolute;
+                z-index: 0;
+            }
 
-    .matchup {
-        margin: 20px 0;
-    }
+        .modal-high-zindex {
+            z-index: 1050; /* Adjust as needed */
+        }
 
-    .team {
-        border: 1px solid #000;
-        padding: 10px;
-        width: 150px;
-        text-align: center;
-    }
-</style>
+        .svg-low-zindex {
+            z-index: 0;
+        }
 
-<h2>@Model.Name - Bracket Setup</h2>
+        .bracket-container .label-container {
+            position: absolute; /* Position the container absolutely */
+            display: flex; /* Use flexbox */
+            align-items: flex-end; /* Align items to the bottom */
+            left: 0px; /* Adjust the left position as needed */
+            height: 0; /* No height to avoid affecting layout */
+        }
+
+        .bracket-container .team-container {
+            height: 40px;
+            width: auto;
+            max-width: 170px;
+            cursor: move;
+            border: 2px solid black;
+            position: relative;
+            display: flex; /* Key for dynamic width */
+            align-items: center; /* Key for vertical centering */
+            padding: 0 10px; /* Add some padding for visual comfort */
+            box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
+            border-radius: 14px;
+            white-space: nowrap; /* Prevent text from wrapping */
+            min-width: 170px;
+            z-index: 3;
+        }
+
+        .bracket-container .score-container {
+            height: 40px;
+            width: auto;
+            max-width: 50px;
+            position: relative;
+            display: flex; /* Key for dynamic width */
+            align-items: center; /* Key for vertical centering */
+            padding: 0 5px;
+            white-space: nowrap; /* Prevent text from wrapping */
+            min-width: 50px;
+            z-index: 3;
+        }
+
+
+        .bracket-container .label {
+            font-weight: bold; /* Make the text bold */
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .modal-backdrop {
+            z-index: -1;
+        }
+
+        .bracket-container .submit-button-container {
+            text-align: center;
+            margin-top: 20px; /* Add some space between bracket and button */
+            z-index: 3;
+        }
+    </style>
+</head>
+
+<h2>@Model.TournamentName - Bracket Setup</h2>
 
 @functions {
-    string GetDeleteModalId(Tournament tournament)
+    string GetDeleteModalId(int tournamentId)
     {
-        return "#deleteModal" + tournament.TournamentId;
+        return "#deleteModal" + tournamentId;
     }
 
-    string GetModalId(Tournament tournament)
+    string GetModalId(int tournamentId)
     {
-        return "deleteModal" + tournament.TournamentId;
+        return "deleteModal" + tournamentId;
     }
+}
+
+@{
+    int bracketHeight = 100;
+    int topY = 50;
+    int width = 200;
+    Queue<int> yPointsPrevRound = new Queue<int>();
+    int maxBracketHeight = 0; 
 }
 
 <form asp-action="BracketSetup" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="TournamentId" />
+    <input type="hidden" asp-for="TournamentName" />
 
-    <div class="bracket br-2">
-        @for(int i = 0; i < ViewBag.Rounds; i++)
-        {
-            int round = i + 1;
-            <section aria-labelledby="round-@round">
-                <h4 id="round-@round">Round @round</h4>
-                <ol>
-                    @for (int j = 0; j < ViewBag.Games[i]; j++)
-                    {
-                        //int Team1Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(0)?.TeamId ?? 0;
-                        //int Team2Id = games?.ElementAtOrDefault(j)?.Teams.ElementAtOrDefault(1)?.TeamId ?? 0;
-                        int Team1Id = games?.ElementAtOrDefault(j)?.Team1?.TeamId ?? 0;
-                        int Team2Id = games?.ElementAtOrDefault(j)?.Team2?.TeamId ?? 0;
+    @for (int m = 0; m < Model.TeamIds.Count; m++)
+    {
+        <input type="hidden" name="TeamIds[@m]" value="@Model.TeamIds[m]" />
+    }
 
-                        <select class="form-control" id="round-@i-game-@j" name="teamIds[@i][@j][0]">
-                            @if (i == 0)
-                            { 
-                                <option value="">-- Select Team --</option>
-                                @foreach (var team in teams)
-                                {
-                                    bool temp = team.TeamId == Team1Id;
-                                    <option value="@team?.TeamId" selected="@(temp ? "selected" : null)">
-                                        @{
-                                            string teamString = "";
-                                        }
-                                        @if (team?.ByeTeam == true)
-                                        {
-                                            teamString = "Bye";
-                                        }
-                                        else
-                                        {
-                                            string name1 = @team?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                            string name2 = @team?.Players.ElementAtOrDefault(1)?.Name ?? "";
-                                            teamString = name1 + " and " + name2;
+    @for (int m = 0; m < Model.PlayerIds.Count; m++)
+    {
+        <input type="hidden" name="PlayerIds[@m]" value="@Model.PlayerIds[m]" />
+    }
 
-                                        }
-                                        @teamString
-                                    </option>
-                                }                           
-                            }
-                        </select>
 
-                        <select class="form-control" id="round-@i-game-@j" name="teamIds[@i][@j][1]">
-                            @if (i == 0)
-                            {
-                                <option value="">-- Select Team --</option>
-                                @foreach (var team in teams)
-                                {
-                                    bool temp = team.TeamId == Team2Id;
-                                    <option value="@team?.TeamId" selected="@(temp ? "selected" : null)">
-                                        @{
-                                            string teamString = "";
-                                        }
-                                        @if (team?.ByeTeam == true)
-                                        {
-                                            teamString = "Bye";
-                                        }
-                                        else
-                                        {
-                                            string name1 = @team?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                            string name2 = @team?.Players.ElementAtOrDefault(1)?.Name ?? "";
-                                            teamString = name1 + " and " + name2;
-
-                                        }
-                                        @teamString
-                                    </option>
-                                }
-                            }
-                        </select>
-                    }
-                </ol>
-            </section>
+    <div class="bracket-container">
+        @{
+            int i = 0;
         }
-    </div>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(Model)">Create Tournament</button>
 
-    <div class="modal fade" id="@GetModalId(Model)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        @for (i = 0; i < ViewBag.Rounds; i++)
+        {
+            @for (int j = 0; j < ViewBag.Games[i]; j++)
+            {
+                if (i == 0)
+                {
+
+                    <svg class="svg-low-zindex">
+                        <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                                  fill="none" stroke="black"
+                                  transform="translate(@(i * width), 0)" />
+
+                    </svg>
+
+
+                }
+                else
+                {
+                    int top1 = yPointsPrevRound.Dequeue();
+                    int bottom1 = yPointsPrevRound.Dequeue();
+                    int top2 = yPointsPrevRound.Dequeue();
+                    int bottom2 = yPointsPrevRound.Dequeue();
+
+                    topY = (top1 + bottom1) / 2;
+                    int bottomY = (top2 + bottom2) / 2;
+                    bracketHeight = bottomY - topY;
+
+                    <svg class="svg-low-zindex">
+                        <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
+                                  fill="none" stroke="black"
+                                  transform="translate(@(i * width), 0)" />
+
+                    </svg>
+                }
+
+                if (i == 0)
+                {
+                    int[] namePosY = { topY, topY + bracketHeight };
+                    for (int k = 0; k < 2; k++)
+                    {
+                        int posY = namePosY[k];
+                        int posX = i * width + 5;
+                        <div id=TeamId class="label-container" style="left: @(posX + "px"); top: @(posY + "px")">
+                            <div class="team-container" style="background:white">
+                                <select class="form-control label" id="team-0" name="teamBracketPositionIds[@j][@k]">
+                                    <option value="">-- Select Team --</option>
+                                    @foreach (Team team in Model.Teams)
+                                    {                                    
+                                        <option value="@team.TeamId">
+                                            @team.Name
+                                        </option>
+
+                                    }
+                                </select>                        
+                            </div>
+                        </div>
+                    }
+                }
+
+                yPointsPrevRound.Enqueue(topY);
+                yPointsPrevRound.Enqueue(topY + bracketHeight);
+
+
+                topY += bracketHeight + 50;
+                maxBracketHeight = Math.Max(maxBracketHeight, topY);
+            }        
+        }
+        <div class="label-container" style="top: @(maxBracketHeight + 20)px;">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(Model.TournamentId)">Create Tournament</button>
+            
+        </div>
+    </div>
+    
+    <div class="modal fade" id="@GetModalId(Model.TournamentId)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">This will overwrite existing games for this tournament</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">This will overwrite the existing tournament</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -139,6 +218,11 @@
             </div>
         </div>
     </div>
-
+    
 </form>
+
+
+    
+
+
     

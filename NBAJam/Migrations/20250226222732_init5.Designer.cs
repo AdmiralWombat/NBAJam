@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NBAJam.Data;
 
@@ -11,9 +12,11 @@ using NBAJam.Data;
 namespace NBAJam.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250226222732_init5")]
+    partial class init5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -365,9 +368,16 @@ namespace NBAJam.Migrations
                     b.Property<int>("TournamentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TournamentId1")
+                        .HasColumnType("int");
+
                     b.HasKey("TeamId", "TournamentId");
 
                     b.HasIndex("TournamentId");
+
+                    b.HasIndex("TournamentId1")
+                        .IsUnique()
+                        .HasFilter("[TournamentId1] IS NOT NULL");
 
                     b.ToTable("TeamTournaments");
                 });
@@ -383,9 +393,6 @@ namespace NBAJam.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("WinningTeamId")
-                        .HasColumnType("int");
 
                     b.HasKey("TournamentId");
 
@@ -517,6 +524,10 @@ namespace NBAJam.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NBAJam.Models.Tournament", null)
+                        .WithOne("WinningTeam")
+                        .HasForeignKey("NBAJam.Models.TeamTournament", "TournamentId1");
+
                     b.Navigation("Team");
 
                     b.Navigation("Tournament");
@@ -546,6 +557,9 @@ namespace NBAJam.Migrations
                     b.Navigation("Rounds");
 
                     b.Navigation("TeamTournaments");
+
+                    b.Navigation("WinningTeam")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

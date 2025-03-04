@@ -19,8 +19,21 @@ namespace NBAJam.Controllers
         {
             var teams = await _teams.GetAllAsync(new QueryOptions<Team>
             {
-                Includes = "Players"
+                Includes = "Players, TeamTournaments.Tournament"
             });
+
+            if (teams != null)
+            {
+                foreach (var team in teams)
+                {
+                    team.TournamentsWon = 0;
+                    foreach (var teamTournament in team.TeamTournaments)
+                    {
+                        if (teamTournament.Tournament.WinningTeamId == team.TeamId)
+                            team.TournamentsWon++;
+                    }
+                }
+            }
 
             return View(teams);
         }

@@ -1,21 +1,29 @@
-﻿@model Tournament
+﻿@model TeamTournamentViewModel
 
 <h2>@Model.Name - Team Selection</h2>
 
 @{
-    List<Player> players = Model.PlayerTournaments.Select(pt => pt.Player).ToList();
-    var teamTournaments = Model.TeamTournaments.ToList();
+    
 }
 
 <form asp-action="TeamSetup" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="TournamentId" />
-    <input type="hidden" asp-for="PlayerTournaments" />
-    <input type="hidden" asp-for="Rounds" />
+    <input type="hidden" asp-for="Name" />
+    
+    @for (int i = 0; i < Model.TeamIds.Count; i++)
+    {
+        <input type="hidden" name="TeamIds[@i]" value="@Model.TeamIds[i]"/>
+    }
+
+    @for (int i = 0; i < Model.PlayerIds.Count; i++)
+    {
+        <input type="hidden" name="PlayerIds[@i]" value="@Model.PlayerIds[i]" />
+    }
 
     <div class="row">
         @for (int i = 0; i < ViewBag.NumberOfTeams; i++)
         {
-            var team = teamTournaments.ElementAtOrDefault(i + 1)?.Team;
+            var team = Model.Teams.ElementAtOrDefault(i + 1);
             if (team?.ByeTeam == true)
                 continue;
             var player1Id = team?.Players.ElementAtOrDefault(0)?.PlayerId ?? 0;
@@ -30,9 +38,9 @@
 
                     <div class="form-group">
                         <label for="player1-@i">Player 1:</label>
-                        <select class="form-control" id="player1-@i" name="playerIds[@i][0]">
+                        <select class="form-control" id="player1-@i" name="playerTeamPositionIds[@i][0]">
                             <option value="">-- Select Player --</option>                            
-                            @foreach (var player in players)
+                            @foreach (var player in Model.Players)
                             {                                
                                 var temp = player.PlayerId == player1Id;                               
                                 <option value="@player.PlayerId" selected="@(temp ? "selected" : null)">
@@ -45,9 +53,9 @@
 
                     <div class="form-group">
                         <label for="player2-@i">Player 2:</label>
-                        <select class="form-control" id="player2-@i" name="playerIds[@i][1]">
+                        <select class="form-control" id="player2-@i" name="playerTeamPositionIds[@i][1]">
                             <option value="">-- Select Player --</option>
-                            @foreach (var player in players)
+                            @foreach (var player in Model.Players)
                             {
                                 var temp = player.PlayerId == player2Id;
                                 <option value="@player.PlayerId" selected="@(temp ? "selected" : null)">

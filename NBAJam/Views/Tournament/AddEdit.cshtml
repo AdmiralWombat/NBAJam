@@ -1,4 +1,4 @@
-﻿@model Tournament
+﻿@model PlayerTournamentViewModel
 
 @{
     ViewBag.Title = $"{ViewBag.Operation} Tournament";
@@ -108,10 +108,8 @@
         @await Component.InvokeAsync("CreatePlayer", new { returnToPlayerPage = false })
     </div>
 
-    <form asp-action="AddEdit" method="post" enctype="multipart/form-data">
+    <form asp-action="AddEdit" method="post" enctype="multipart/form-data">   
         <input type="hidden" asp-for="TournamentId" />
-        <input type="hidden" asp-for="TeamTournaments" />
-        <input type="hidden" asp-for="Rounds" />
 
         <div class="form-group">
             <label asp-for="Name"></label>
@@ -123,7 +121,7 @@
         {
             <div class="form-check">
                 @{
-                    bool isChecked = Model.PlayerTournaments != null && Model.PlayerTournaments.Any(i => i.PlayerID == player.PlayerId);
+                    bool isChecked = Model.Players != null && Model.Players.Any(i => i.PlayerId == player.PlayerId);
                 }
                 <input type="checkbox" class="form-check-input" id="@player.PlayerId" name="playerIDs" value="@player.PlayerId"
                 @(isChecked ? "checked" : "") />

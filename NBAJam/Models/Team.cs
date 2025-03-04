@@ -19,13 +19,18 @@ namespace NBAJam.Models
             get
             {
                 string name = "";
-                int playerCount = 0;
-                foreach (var player in Players)
+                if (ByeTeam)
+                    name = "Bye";
+                else
                 {
-                    name += player.Name;
-                    playerCount++;
-                    if (playerCount < Players.Count)
-                        name += " and ";
+                    int playerCount = 0;
+                    foreach (var player in Players)
+                    {
+                        name += player.Name;
+                        playerCount++;
+                        if (playerCount < Players.Count)
+                            name += " and ";
+                    }
                 }
                 return name;
             }

@@ -12,8 +12,8 @@ using NBAJam.Data;
 namespace NBAJam.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250226042151_init5")]
-    partial class init5
+    [Migration("20250227033756_init6")]
+    partial class init6
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -387,12 +387,10 @@ namespace NBAJam.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("WinningTeamTeamId")
+                    b.Property<int>("WinningTeamId")
                         .HasColumnType("int");
 
                     b.HasKey("TournamentId");
-
-                    b.HasIndex("WinningTeamTeamId");
 
                     b.ToTable("Tournaments");
                 });
@@ -525,17 +523,6 @@ namespace NBAJam.Migrations
                     b.Navigation("Team");
 
                     b.Navigation("Tournament");
-                });
-
-            modelBuilder.Entity("NBAJam.Models.Tournament", b =>
-                {
-                    b.HasOne("NBAJam.Models.Team", "WinningTeam")
-                        .WithMany()
-                        .HasForeignKey("WinningTeamTeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("WinningTeam");
                 });
 
             modelBuilder.Entity("NBAJam.Models.Player", b =>

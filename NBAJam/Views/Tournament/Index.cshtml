@@ -18,6 +18,7 @@
                     <h5 class="card-title">@tournament.Name</h5>                    
                     <a asp-action="AddEdit" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">Edit</i></a>
                     <a asp-action="TournamentView" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">View</i></a>
+                    <a asp-action="Delete" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-danger"><i class="bg-info bi-pencil-fill">Delete</i></a>
 
                 </div>
             </form>

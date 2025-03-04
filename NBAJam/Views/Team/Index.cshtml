@@ -9,25 +9,31 @@
 <div class="row">
     @foreach (Team team in Model)
     {
-        <div class="col-md-4">
-            <form asp-action="Delete" asp-controller="team" method="post">
-                <input type="hidden" asp-for="@team.TeamId" name="id" />
-                <div class="card" style="width: 18rem;">                    
-                    <div class="card-body">
-                        <h5 class="card-title">Team</h5>
-                        <ul>
-                            @foreach (var player in team.Players)
-                            {
-                                <li>
-                                    <a asp-action="Details" asp-controller="Player" asp-route-id="@player.PlayerId" class="btn btn-info">@player.Name</a>
-                                </li>
-                            }
-                        </ul>
+        @if (team.ByeTeam == false)
+        {
+            <div class="col-md-4">
+                <form asp-action="Delete" asp-controller="team" method="post">
+                    <input type="hidden" asp-for="@team.TeamId" name="id" />
+                    <div class="card" style="width: 18rem;">                    
+                        <div class="card-body">
+                            <h4 class="card-title">Team @team.Name</h4>
+                            <h5>
+                                Tournaments Won: @team.TournamentsWon
+                            </h5>
+                            <ul>
+                                @foreach (var player in team.Players)
+                                {
+                                    <li>
+                                        <a asp-action="Details" asp-controller="Player" asp-route-id="@player.PlayerId" class="btn btn-info">@player.Name</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
                     </div>
-                </div>
 
-                <input type="submit" value="Delete" class="btn btn-danger" />
-            </form>
-        </div>
+                    <input type="submit" value="Delete" class="btn btn-danger" />
+                </form>
+            </div>
+        }
     }
 </div>

@@ -10,7 +10,8 @@ namespace NBAJam.Models
         public List<Round> Rounds { get; set; }
         [ValidateNever] public ICollection<TeamTournament> TeamTournaments { get; set; }
         [ValidateNever] public ICollection<PlayerTournament> PlayerTournaments { get; set; }
-        public Team WinningTeam { get; set; }
+        public int WinningTeamId { get; set; }
+       
 
         public Tournament()
         {

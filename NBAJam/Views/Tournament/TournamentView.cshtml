@@ -294,6 +294,19 @@
 
     </svg>
 
+    @if (ViewBag.WinningTeamName != null && ViewBag.WinningTeamName != "")
+    {
+        int posX = i * width + 5;
+        int posY = topY;
+        <div id=TeamId class="label-container" style="left: @(posX + "px"); top: @(posY + "px")">
+            <div class="team-container" style="background:green">
+                <span class="label">
+                    @ViewBag.WinningTeamName
+                </span>
+            </div>
+        </div>
+    }
+
 
 
 </div>
