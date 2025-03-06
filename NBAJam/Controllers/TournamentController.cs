@@ -13,6 +13,7 @@ namespace NBAJam.Controllers
         private Repository<Player> _players;
         private Repository<Team> _teams;
         private Repository<Game> _games;
+        private Repository<Round> _rounds;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -22,6 +23,7 @@ namespace NBAJam.Controllers
             _players = new Repository<Player>(context);
             _teams = new Repository<Team>(context);
             _games = new Repository<Game>(context);
+            _rounds = new Repository<Round>(context);
 
 
             _webHostEnvironment = webHostEnvironment;
@@ -464,7 +466,25 @@ namespace NBAJam.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            await _tournaments.DeleteAsync(id);
+            Tournament tournament = await _tournaments.GetByIdAsync(id, new QueryOptions<Tournament>
+            {
+                Includes = "Rounds, Rounds.Games"
+            });
+
+            if (tournament != null)
+            {               
+                foreach (Round round in tournament.Rounds.ToList())
+                {
+                    foreach (Game game in round.Games.ToList())
+                    {
+                        await _games.DeleteAsync(game.GameId);
+                    }
+                    
+                    await _rounds.DeleteAsync(round.RoundId);
+                }
+                                
+                await _tournaments.DeleteAsync(tournament.TournamentId);
+            }
 
             return RedirectToAction("Index", "Tournament");
         }
