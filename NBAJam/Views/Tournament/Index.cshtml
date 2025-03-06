@@ -4,6 +4,27 @@
     ViewBag.Title = "Tournaments";
 }
 
+@functions {
+    string GetDeleteModalId(int tournamentId)
+    {
+        return "#deleteModal" + tournamentId;
+    }
+
+    string GetModalId(int tournamentId)
+    {
+        return "deleteModal" + tournamentId;
+    }
+}
+
+<head>
+    <style>
+        .outline {
+            border: 2px solid black;
+            box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
+            border-radius: 14px;
+        }
+    </style>
+</head>
 
 <h2>Tournaments </h2>
 <a asp-action="AddEdit" asp-controller="Tournament" class="btn btn-primary">Create New Tournament</a>
@@ -12,16 +33,39 @@
     @foreach (Tournament tournament in Model)
     {
         <div class="col-md-4">
-            <form asp-action="AddEdit" asp-controller="Tournament" method="post">
+            <form asp-action="Delete" asp-controller="Tournament" method="post">
                 <input type="hidden" asp-for="@tournament.TournamentId" name="id" />
-                <div class="card-body">
-                    <h5 class="card-title">@tournament.Name</h5>                    
+                <div class="card-body outline">
+                    <h3 class="card-title">@tournament.Name</h3>
+                    <h5>Games Played: @tournament.GamesPlayed / @tournament.TotalGames</h5>
                     <a asp-action="AddEdit" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">Edit</i></a>
                     <a asp-action="TournamentView" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">View</i></a>
-                    <a asp-action="Delete" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-danger"><i class="bg-info bi-pencil-fill">Delete</i></a>
 
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(tournament.TournamentId)">
+                        <i class="bi bi-trash">Delete</i>
+                    </button>
+
+                </div>
+
+                <div class="modal fade" id="@GetModalId(tournament.TournamentId)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete tournament?</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Delete"></button>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
+
+        
     }
-</div> 
+</div>
+

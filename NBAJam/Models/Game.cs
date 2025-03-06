@@ -20,6 +20,14 @@ namespace NBAJam.Models
         public bool Team1Won { get; set; }
         public bool Team2Won { get; set; }
 
+        [NotMapped] public bool GamePlayed
+        {
+            get
+            {
+                return Team1Won || Team2Won;
+            }
+        }
+
         public Game()
         {
             

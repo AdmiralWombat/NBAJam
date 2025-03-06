@@ -14,7 +14,7 @@ namespace NBAJam.Models
 
         [ValidateNever] public ICollection<TeamTournament> TeamTournaments { get; set; }
 
-        public string Name
+        [NotMapped] public string Name
         {
             get
             {
