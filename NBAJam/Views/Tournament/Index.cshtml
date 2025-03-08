@@ -38,6 +38,10 @@
                 <div class="card-body outline">
                     <h3 class="card-title">@tournament.Name</h3>
                     <h5>Games Played: @tournament.GamesPlayed / @tournament.TotalGames</h5>
+                    @if (tournament.WinningTeamId != 0 && ViewBag.TeamNames.ContainsKey(tournament.TournamentId))
+                    {
+                        <h4>Winner: @ViewBag.TeamNames[tournament.TournamentId]</h4>
+                    }
                     <a asp-action="AddEdit" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">Edit</i></a>
                     <a asp-action="TournamentView" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">View</i></a>
 

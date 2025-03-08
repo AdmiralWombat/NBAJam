@@ -24,7 +24,7 @@ namespace NBAJam.Models
         {
             get
             {
-                return Team1Won || Team2Won;
+                return Team1Won || Team2Won || (Team1 != null && Team1.ByeTeam) || (Team2 != null && Team2.ByeTeam);
             }
         }
 

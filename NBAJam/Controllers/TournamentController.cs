@@ -32,7 +32,16 @@ namespace NBAJam.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _tournaments.GetAllAsync(new QueryOptions<Tournament> { Includes = "Rounds, Rounds.Games" }));
+            IEnumerable<Tournament> tournaments = await _tournaments.GetAllAsync(new QueryOptions<Tournament> { Includes = "Rounds, Rounds.Games, Rounds.Games.Team1, Rounds.Games.Team2, Rounds.Games.Team1.Players, Rounds.Games.Team2.Players" });
+
+            ViewBag.TeamNames = new Dictionary<int, string>();
+
+            foreach (Tournament tournament in tournaments)
+            {
+                Team winningTeam = await _teams.GetByIdAsync(tournament.WinningTeamId, new QueryOptions<Team>{ Includes = "Players" });
+                ViewBag.TeamNames.TryAdd(tournament.TournamentId, winningTeam.Name);
+            }
+            return View(tournaments);
         }
 
         [HttpGet]
@@ -69,12 +78,15 @@ namespace NBAJam.Controllers
             for (int i = ViewBag.Rounds - 1; i >= 0; i--)
             {
                 ViewBag.Games[i] = gameCount;
-                if (tournament.Rounds[i].Games.ElementAtOrDefault(i) == null)
+                for (int j = 0; j < gameCount; j++)
                 {
-                    Game newGame = new Game() { TournamentId = id, Tournament = tournament}; 
-                    await _games.AddAsync(newGame);
-                    tournament.Rounds[i].Games.Add(newGame);
-                    updatedTournament = true;
+                    if (tournament.Rounds[i].Games.ElementAtOrDefault(j) == null)
+                    {
+                        Game newGame = new Game() { TournamentId = id, Tournament = tournament };
+                        await _games.AddAsync(newGame);
+                        tournament.Rounds[i].Games.Add(newGame);
+                        updatedTournament = true;
+                    }
                 }
 
                 gameCount *= 2;

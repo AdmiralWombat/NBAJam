@@ -25,7 +25,7 @@ namespace NBAJam.Models
                         totalGames++;
                     }
                 }
-                return totalGames - 1;
+                return totalGames;
             }
         }
 
@@ -42,7 +42,7 @@ namespace NBAJam.Models
                             gamesPlayed++;
                     }
                 }
-                return 2;
+                return gamesPlayed;
             }
         }
        
