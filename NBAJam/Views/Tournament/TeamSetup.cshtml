@@ -21,11 +21,17 @@
     }
 
     <div class="row">
-        @for (int i = 0; i < ViewBag.NumberOfTeams; i++)
+        @{
+            int buyTeamOffset = 0;
+        }
+        @for (int i = 0; i < ViewBag.NumberOfTeams + buyTeamOffset; i++)
         {
-            var team = Model.Teams.ElementAtOrDefault(i + 1);
+            var team = Model.Teams.ElementAtOrDefault(i + buyTeamOffset);
             if (team?.ByeTeam == true)
+            {
+                buyTeamOffset++;
                 continue;
+            }
             var player1Id = team?.Players.ElementAtOrDefault(0)?.PlayerId ?? 0;
             var player2Id = team?.Players.ElementAtOrDefault(1)?.PlayerId ?? 0;
 

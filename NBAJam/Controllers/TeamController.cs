@@ -40,9 +40,10 @@ namespace NBAJam.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Team team)
+        public async Task<IActionResult> Delete(int id)
         {
-            await _teams.DeleteAsync(team.TeamId);
+            
+            await _teams.DeleteAsync(id);
             return RedirectToAction("Index");
         }
     }

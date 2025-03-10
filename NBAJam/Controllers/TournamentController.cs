@@ -17,6 +17,8 @@ namespace NBAJam.Controllers
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
+        private Random _rng;
+
         public TournamentController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _tournaments = new Repository<Tournament>(context);
@@ -25,6 +27,7 @@ namespace NBAJam.Controllers
             _games = new Repository<Game>(context);
             _rounds = new Repository<Round>(context);
 
+            _rng = new Random();
 
             _webHostEnvironment = webHostEnvironment;
 
@@ -39,7 +42,8 @@ namespace NBAJam.Controllers
             foreach (Tournament tournament in tournaments)
             {
                 Team winningTeam = await _teams.GetByIdAsync(tournament.WinningTeamId, new QueryOptions<Team>{ Includes = "Players" });
-                ViewBag.TeamNames.TryAdd(tournament.TournamentId, winningTeam.Name);
+                if (winningTeam != null)
+                    ViewBag.TeamNames.TryAdd(tournament.TournamentId, winningTeam.Name);
             }
             return View(tournaments);
         }
@@ -270,6 +274,7 @@ namespace NBAJam.Controllers
             });
 
             ViewBag.NumberOfTeams = playerTournamentViewModel.PlayersIds.Count / 2;
+            
 
             List<Player> players = new List<Player>();
             List<int> playerIds = new List<int>();
@@ -287,6 +292,38 @@ namespace NBAJam.Controllers
             List<int> teamIds = new List<int>();
             if (tournament != null && tournament.TeamTournaments != null)
             {
+                if (playerTournamentViewModel.RandomTeams)
+                {
+                    var allTeams = await _teams.GetAllAsync();
+
+                    List<Player> randomPlayers = new List<Player>(players);
+                    randomPlayers = randomPlayers.OrderBy(_ => _rng.Next()).ToList();
+                    for (int i = 0; i < players.Count / 2; i++)
+                    {
+                        Player player1 = randomPlayers[randomPlayers.Count - 1];
+                        Player player2 = randomPlayers[randomPlayers.Count - 2];
+                        List<Player> newPlayers = new List<Player>();
+                        newPlayers.Add(player1);
+                        newPlayers.Add(player2);
+
+                        var existingTeam = allTeams.FirstOrDefault(t =>
+                            t.Players.Contains(player1) && t.Players.Contains(player2) &&
+                            t.Players.Count == 2);
+
+                        if (existingTeam == null)
+                        {
+                            existingTeam = new Team() { Players = newPlayers };
+                            await _teams.AddAsync(existingTeam);
+                        }
+                        
+                        TeamTournament teamTournament = new TeamTournament() { Team = existingTeam, TeamId = existingTeam.TeamId, Tournament = tournament, TournamentId = playerTournamentViewModel.TournamentId };
+                        tournament.TeamTournaments.Add(teamTournament);
+
+                        randomPlayers.RemoveAt(randomPlayers.Count - 1);
+                        randomPlayers.RemoveAt(randomPlayers.Count - 1);
+                    }
+                }
+
                 foreach (TeamTournament teamTournament in tournament.TeamTournaments)
                 {
                     teams.Add(teamTournament.Team);
@@ -410,6 +447,10 @@ namespace NBAJam.Controllers
                     await _tournaments.AddAsync(newTournament);
 
                     playerTournamentViewModel.TournamentId = newTournament.TournamentId;
+                }
+                else
+                {
+                    playerTournamentViewModel.RandomTeams = false;
                 }
 
                 foreach (int playerId in playerIDs)
@@ -562,7 +603,10 @@ namespace NBAJam.Controllers
             return RedirectToAction("TournamentView", "Tournament", new {id = tournamentId});
         }
 
+        
     }
+
+
 }
 
 
