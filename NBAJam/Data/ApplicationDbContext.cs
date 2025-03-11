@@ -16,6 +16,9 @@ namespace NBAJam.Data
         public DbSet<Team> Teams { get; set; }
         public DbSet<TeamTournament> TeamTournaments { get; set; }
         public DbSet<PlayerTournament> PlayerTournaments { get; set; }
+        
+        public DbSet<PlayerTeam> PlayerTeams { get; set; }  
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +51,19 @@ namespace NBAJam.Data
                 .HasOne(tt => tt.Tournament)
                 .WithMany(t => t.PlayerTournaments)
                 .HasForeignKey(tt => tt.TournamentId);
+
+
+            modelBuilder.Entity<PlayerTeam>()
+                .HasKey(tt => new { tt.PlayerId, tt.TeamId });
+            modelBuilder.Entity<PlayerTeam>()
+                .HasOne(tt => tt.Player)
+                .WithMany(t => t.PlayerTeams)
+                .HasForeignKey(tt => tt.PlayerId);
+            modelBuilder.Entity<PlayerTeam>()
+                .HasOne(tt => tt.Team)
+                .WithMany(t => t.PlayerTeams)
+                .HasForeignKey(tt => tt.TeamId);
+
 
             modelBuilder.Entity<Team>().HasData(
                 new Team { TeamId = 1, ByeTeam = true });

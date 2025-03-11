@@ -12,8 +12,8 @@ using NBAJam.Data;
 namespace NBAJam.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250216052347_init1")]
-    partial class init1
+    [Migration("20250310213816_init0")]
+    partial class init0
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -238,9 +238,23 @@ namespace NBAJam.Migrations
                     b.Property<int?>("RoundId")
                         .HasColumnType("int");
 
-                    b.Property<string>("TeamPoints")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Team1Points")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Team1TeamId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Team1Won")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Team2Points")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Team2TeamId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Team2Won")
+                        .HasColumnType("bit");
 
                     b.Property<int>("TournamentId")
                         .HasColumnType("int");
@@ -248,6 +262,10 @@ namespace NBAJam.Migrations
                     b.HasKey("GameId");
 
                     b.HasIndex("RoundId");
+
+                    b.HasIndex("Team1TeamId");
+
+                    b.HasIndex("Team2TeamId");
 
                     b.HasIndex("TournamentId");
 
@@ -266,17 +284,27 @@ namespace NBAJam.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TeamId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TournamentsWon")
                         .HasColumnType("int");
 
                     b.HasKey("PlayerId");
 
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("NBAJam.Models.PlayerTeam", b =>
+                {
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TeamId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PlayerId", "TeamId");
+
                     b.HasIndex("TeamId");
 
-                    b.ToTable("Players");
+                    b.ToTable("PlayerTeams");
                 });
 
             modelBuilder.Entity("NBAJam.Models.PlayerTournament", b =>
@@ -369,6 +397,9 @@ namespace NBAJam.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("WinningTeamId")
+                        .HasColumnType("int");
+
                     b.HasKey("TournamentId");
 
                     b.ToTable("Tournaments");
@@ -431,20 +462,44 @@ namespace NBAJam.Migrations
                         .WithMany("Games")
                         .HasForeignKey("RoundId");
 
+                    b.HasOne("NBAJam.Models.Team", "Team1")
+                        .WithMany()
+                        .HasForeignKey("Team1TeamId");
+
+                    b.HasOne("NBAJam.Models.Team", "Team2")
+                        .WithMany()
+                        .HasForeignKey("Team2TeamId");
+
                     b.HasOne("NBAJam.Models.Tournament", "Tournament")
                         .WithMany()
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Team1");
+
+                    b.Navigation("Team2");
+
                     b.Navigation("Tournament");
                 });
 
-            modelBuilder.Entity("NBAJam.Models.Player", b =>
+            modelBuilder.Entity("NBAJam.Models.PlayerTeam", b =>
                 {
-                    b.HasOne("NBAJam.Models.Team", null)
-                        .WithMany("Players")
-                        .HasForeignKey("TeamId");
+                    b.HasOne("NBAJam.Models.Player", "Player")
+                        .WithMany("PlayerTeams")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NBAJam.Models.Team", "Team")
+                        .WithMany("PlayerTeams")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("NBAJam.Models.PlayerTournament", b =>
@@ -494,6 +549,8 @@ namespace NBAJam.Migrations
 
             modelBuilder.Entity("NBAJam.Models.Player", b =>
                 {
+                    b.Navigation("PlayerTeams");
+
                     b.Navigation("PlayerTournaments");
                 });
 
@@ -504,7 +561,7 @@ namespace NBAJam.Migrations
 
             modelBuilder.Entity("NBAJam.Models.Team", b =>
                 {
-                    b.Navigation("Players");
+                    b.Navigation("PlayerTeams");
 
                     b.Navigation("TeamTournaments");
                 });

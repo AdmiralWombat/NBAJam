@@ -21,10 +21,10 @@
                                 Tournaments Won: @team.TournamentsWon
                             </h5>
                             <ul>
-                                @foreach (var player in team.Players)
+                                @foreach (var playerTeam in team.PlayerTeams)
                                 {
                                     <li>
-                                        <a asp-action="Details" asp-controller="Player" asp-route-id="@player.PlayerId" class="btn btn-info">@player.Name</a>
+                                        <a asp-action="Details" asp-controller="Player" asp-route-id="@playerTeam.PlayerId" class="btn btn-info">@playerTeam.Player.Name</a>
                                     </li>
                                 }
                             </ul>

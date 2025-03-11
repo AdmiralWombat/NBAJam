@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NBAJam.Migrations
 {
     /// <inheritdoc />
-    public partial class init1 : Migration
+    public partial class init0 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,6 +51,20 @@ namespace NBAJam.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Players",
+                columns: table => new
+                {
+                    PlayerId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TournamentsWon = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Players", x => x.PlayerId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Teams",
                 columns: table => new
                 {
@@ -70,7 +84,8 @@ namespace NBAJam.Migrations
                 {
                     TournamentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WinningTeamId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -184,23 +199,51 @@ namespace NBAJam.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Players",
+                name: "PlayerTeams",
                 columns: table => new
                 {
-                    PlayerId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TournamentsWon = table.Column<int>(type: "int", nullable: false),
-                    TeamId = table.Column<int>(type: "int", nullable: true)
+                    PlayerId = table.Column<int>(type: "int", nullable: false),
+                    TeamId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Players", x => x.PlayerId);
+                    table.PrimaryKey("PK_PlayerTeams", x => new { x.PlayerId, x.TeamId });
                     table.ForeignKey(
-                        name: "FK_Players_Teams_TeamId",
+                        name: "FK_PlayerTeams_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "PlayerId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlayerTeams_Teams_TeamId",
                         column: x => x.TeamId,
                         principalTable: "Teams",
-                        principalColumn: "TeamId");
+                        principalColumn: "TeamId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlayerTournaments",
+                columns: table => new
+                {
+                    PlayerID = table.Column<int>(type: "int", nullable: false),
+                    TournamentId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlayerTournaments", x => new { x.PlayerID, x.TournamentId });
+                    table.ForeignKey(
+                        name: "FK_PlayerTournaments_Players_PlayerID",
+                        column: x => x.PlayerID,
+                        principalTable: "Players",
+                        principalColumn: "PlayerId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlayerTournaments_Tournaments_TournamentId",
+                        column: x => x.TournamentId,
+                        principalTable: "Tournaments",
+                        principalColumn: "TournamentId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -247,37 +290,18 @@ namespace NBAJam.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerTournaments",
-                columns: table => new
-                {
-                    PlayerID = table.Column<int>(type: "int", nullable: false),
-                    TournamentId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlayerTournaments", x => new { x.PlayerID, x.TournamentId });
-                    table.ForeignKey(
-                        name: "FK_PlayerTournaments_Players_PlayerID",
-                        column: x => x.PlayerID,
-                        principalTable: "Players",
-                        principalColumn: "PlayerId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PlayerTournaments_Tournaments_TournamentId",
-                        column: x => x.TournamentId,
-                        principalTable: "Tournaments",
-                        principalColumn: "TournamentId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Games",
                 columns: table => new
                 {
                     GameId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TournamentId = table.Column<int>(type: "int", nullable: false),
-                    TeamPoints = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Team1TeamId = table.Column<int>(type: "int", nullable: true),
+                    Team2TeamId = table.Column<int>(type: "int", nullable: true),
+                    Team1Points = table.Column<int>(type: "int", nullable: false),
+                    Team2Points = table.Column<int>(type: "int", nullable: false),
+                    Team1Won = table.Column<bool>(type: "bit", nullable: false),
+                    Team2Won = table.Column<bool>(type: "bit", nullable: false),
                     RoundId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -288,6 +312,16 @@ namespace NBAJam.Migrations
                         column: x => x.RoundId,
                         principalTable: "Round",
                         principalColumn: "RoundId");
+                    table.ForeignKey(
+                        name: "FK_Games_Teams_Team1TeamId",
+                        column: x => x.Team1TeamId,
+                        principalTable: "Teams",
+                        principalColumn: "TeamId");
+                    table.ForeignKey(
+                        name: "FK_Games_Teams_Team2TeamId",
+                        column: x => x.Team2TeamId,
+                        principalTable: "Teams",
+                        principalColumn: "TeamId");
                     table.ForeignKey(
                         name: "FK_Games_Tournaments_TournamentId",
                         column: x => x.TournamentId,
@@ -346,13 +380,23 @@ namespace NBAJam.Migrations
                 column: "RoundId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Games_Team1TeamId",
+                table: "Games",
+                column: "Team1TeamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Games_Team2TeamId",
+                table: "Games",
+                column: "Team2TeamId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Games_TournamentId",
                 table: "Games",
                 column: "TournamentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Players_TeamId",
-                table: "Players",
+                name: "IX_PlayerTeams_TeamId",
+                table: "PlayerTeams",
                 column: "TeamId");
 
             migrationBuilder.CreateIndex(
@@ -393,6 +437,9 @@ namespace NBAJam.Migrations
                 name: "Games");
 
             migrationBuilder.DropTable(
+                name: "PlayerTeams");
+
+            migrationBuilder.DropTable(
                 name: "PlayerTournaments");
 
             migrationBuilder.DropTable(
@@ -411,10 +458,10 @@ namespace NBAJam.Migrations
                 name: "Players");
 
             migrationBuilder.DropTable(
-                name: "Tournaments");
+                name: "Teams");
 
             migrationBuilder.DropTable(
-                name: "Teams");
+                name: "Tournaments");
         }
     }
 }

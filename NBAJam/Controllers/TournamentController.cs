@@ -301,19 +301,36 @@ namespace NBAJam.Controllers
                     for (int i = 0; i < players.Count / 2; i++)
                     {
                         Player player1 = randomPlayers[randomPlayers.Count - 1];
-                        Player player2 = randomPlayers[randomPlayers.Count - 2];
-                        List<Player> newPlayers = new List<Player>();
-                        newPlayers.Add(player1);
-                        newPlayers.Add(player2);
+                        Player player2 = randomPlayers[randomPlayers.Count - 2];                        
 
-                        var existingTeam = allTeams.FirstOrDefault(t =>
-                            t.Players.Contains(player1) && t.Players.Contains(player2) &&
-                            t.Players.Count == 2);
+                        Team? existingTeam = null;
+
+                        foreach (Team team in allTeams)
+                        {
+                            if (team.PlayerTeams.Count == 2)
+                            {
+                                if ((team.PlayerTeams[0].PlayerId == player1.PlayerId && team.PlayerTeams[1].PlayerId == player2.PlayerId) ||
+                                    (team.PlayerTeams[0].PlayerId == player2.PlayerId && team.PlayerTeams[1].PlayerId == player1.PlayerId))
+                                {
+                                    existingTeam = team;
+                                    break;
+                                }
+                            }
+                        }
+
 
                         if (existingTeam == null)
                         {
-                            existingTeam = new Team() { Players = newPlayers };
+                            existingTeam = new Team();
                             await _teams.AddAsync(existingTeam);
+
+                            PlayerTeam newPlayerTeam1 = new PlayerTeam() { Player = player1, PlayerId = player1.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
+                            PlayerTeam newPlayerTeam2 = new PlayerTeam() { Player = player2, PlayerId = player2.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
+                            List<PlayerTeam> newPlayerTeams = new List<PlayerTeam>();
+                            newPlayerTeams.Add(newPlayerTeam1);
+                            newPlayerTeams.Add(newPlayerTeam2);
+                            existingTeam = new Team() { PlayerTeams = newPlayerTeams };
+                            await _teams.UpdateAsync(existingTeam);
                         }
                         
                         TeamTournament teamTournament = new TeamTournament() { Team = existingTeam, TeamId = existingTeam.TeamId, Tournament = tournament, TournamentId = playerTournamentViewModel.TournamentId };
@@ -365,11 +382,24 @@ namespace NBAJam.Controllers
                   
                     teamTournamentViewModel.PlayerIds.Add(player1Id);
                     teamTournamentViewModel.PlayerIds.Add(player2Id);
-                   
+
                     var allTeams = await _teams.GetAllAsync();
-                    var existingTeam = allTeams.FirstOrDefault(t =>
-                        t.Players.Contains(player1) && t.Players.Contains(player2) &&
-                        t.Players.Count == 2);        
+
+                    Team? existingTeam = null;
+
+                    foreach (Team team in allTeams)
+                    {
+                        if (team.PlayerTeams.Count == 2)
+                        {
+                            if ((team.PlayerTeams[0].PlayerId == player1.PlayerId && team.PlayerTeams[1].PlayerId == player2.PlayerId) ||
+                                (team.PlayerTeams[0].PlayerId == player2.PlayerId && team.PlayerTeams[1].PlayerId == player1.PlayerId))
+                            {
+                                existingTeam = team;
+                                break;
+                            }
+                        }
+                    }
+                   
 
                     if (existingTeam != null)
                     {                        
@@ -380,13 +410,18 @@ namespace NBAJam.Controllers
                     }
                     else
                     {
-                        Team newTeam = new Team();
-                        newTeam.Players.Add(player1);
-                        newTeam.Players.Add(player2);
+                        existingTeam = new Team();
+                        await _teams.AddAsync(existingTeam);
 
-                        await _teams.AddAsync(newTeam);                        
+                        PlayerTeam newPlayerTeam1 = new PlayerTeam() { Player = player1, PlayerId = player1.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
+                        PlayerTeam newPlayerTeam2 = new PlayerTeam() { Player = player2, PlayerId = player2.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
+                        List<PlayerTeam> newPlayerTeams = new List<PlayerTeam>();
+                        newPlayerTeams.Add(newPlayerTeam1);
+                        newPlayerTeams.Add(newPlayerTeam2);
+                        existingTeam = new Team() { PlayerTeams = newPlayerTeams };
+                        await _teams.UpdateAsync(existingTeam);
 
-                        teamTournamentViewModel.TeamIds.Add(newTeam.TeamId);                        
+                        teamTournamentViewModel.TeamIds.Add(existingTeam.TeamId);                        
                     }
                 }
                

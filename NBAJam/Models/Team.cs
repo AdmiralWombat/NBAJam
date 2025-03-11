@@ -7,7 +7,7 @@ namespace NBAJam.Models
     public class Team
     {
         public int TeamId { get; set; }
-        public List<Player> Players { get; set; }
+        [ValidateNever] public List<PlayerTeam> PlayerTeams { get; set; }
         public int TournamentsWon { get; set; }
 
         public bool ByeTeam { get; set; }
@@ -24,11 +24,11 @@ namespace NBAJam.Models
                 else
                 {
                     int playerCount = 0;
-                    foreach (var player in Players)
+                    foreach (var playerTeam in PlayerTeams)
                     {
-                        name += player.Name;
+                        name += playerTeam.Player.Name;
                         playerCount++;
-                        if (playerCount < Players.Count)
+                        if (playerCount < PlayerTeams.Count)
                             name += " and ";
                     }
                 }
@@ -38,7 +38,7 @@ namespace NBAJam.Models
 
         public Team()
         {
-            Players = new List<Player>();
+            PlayerTeams = new List<PlayerTeam>();
             TeamTournaments = new List<TeamTournament>();
         }
     }

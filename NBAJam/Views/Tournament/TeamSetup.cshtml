@@ -32,8 +32,8 @@
                 buyTeamOffset++;
                 continue;
             }
-            var player1Id = team?.Players.ElementAtOrDefault(0)?.PlayerId ?? 0;
-            var player2Id = team?.Players.ElementAtOrDefault(1)?.PlayerId ?? 0;
+            var player1Id = team?.PlayerTeams.ElementAtOrDefault(0)?.PlayerId ?? 0;
+            var player2Id = team?.PlayerTeams.ElementAtOrDefault(1)?.PlayerId ?? 0;
 
 
             <div class="col-md-4">

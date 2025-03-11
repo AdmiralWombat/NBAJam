@@ -281,17 +281,27 @@ namespace NBAJam.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TeamId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TournamentsWon")
                         .HasColumnType("int");
 
                     b.HasKey("PlayerId");
 
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("NBAJam.Models.PlayerTeam", b =>
+                {
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TeamId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PlayerId", "TeamId");
+
                     b.HasIndex("TeamId");
 
-                    b.ToTable("Players");
+                    b.ToTable("PlayerTeams");
                 });
 
             modelBuilder.Entity("NBAJam.Models.PlayerTournament", b =>
@@ -470,11 +480,23 @@ namespace NBAJam.Migrations
                     b.Navigation("Tournament");
                 });
 
-            modelBuilder.Entity("NBAJam.Models.Player", b =>
+            modelBuilder.Entity("NBAJam.Models.PlayerTeam", b =>
                 {
-                    b.HasOne("NBAJam.Models.Team", null)
-                        .WithMany("Players")
-                        .HasForeignKey("TeamId");
+                    b.HasOne("NBAJam.Models.Player", "Player")
+                        .WithMany("PlayerTeams")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NBAJam.Models.Team", "Team")
+                        .WithMany("PlayerTeams")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("NBAJam.Models.PlayerTournament", b =>
@@ -524,6 +546,8 @@ namespace NBAJam.Migrations
 
             modelBuilder.Entity("NBAJam.Models.Player", b =>
                 {
+                    b.Navigation("PlayerTeams");
+
                     b.Navigation("PlayerTournaments");
                 });
 
@@ -534,7 +558,7 @@ namespace NBAJam.Migrations
 
             modelBuilder.Entity("NBAJam.Models.Team", b =>
                 {
-                    b.Navigation("Players");
+                    b.Navigation("PlayerTeams");
 
                     b.Navigation("TeamTournaments");
                 });

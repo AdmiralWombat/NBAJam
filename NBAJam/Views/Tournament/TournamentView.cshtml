@@ -178,8 +178,8 @@
                                     }
                                     else
                                     {
-                                        string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                        string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+                                        string name1 = @teams[k]?.PlayerTeams.ElementAtOrDefault(0)?.Player.Name ?? "";
+                                        string name2 = @teams[k]?.PlayerTeams.ElementAtOrDefault(1)?.Player.Name ?? "";
 
                                         if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
                                             teamString = "";
@@ -205,8 +205,8 @@
                                     }
                                     else
                                     {
-                                        string name1 = @teams[k]?.Players.ElementAtOrDefault(0)?.Name ?? "";
-                                        string name2 = @teams[k]?.Players.ElementAtOrDefault(1)?.Name ?? "";
+                                        string name1 = @teams[k]?.PlayerTeams.ElementAtOrDefault(0)?.Player.Name ?? "";
+                                        string name2 = @teams[k]?.PlayerTeams.ElementAtOrDefault(1)?.Player.Name ?? "";
 
                                         if (string.IsNullOrEmpty(name1) && string.IsNullOrEmpty(name2))
                                             teamString = "";
