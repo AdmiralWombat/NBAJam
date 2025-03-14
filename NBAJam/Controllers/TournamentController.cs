@@ -35,13 +35,13 @@ namespace NBAJam.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Tournament> tournaments = await _tournaments.GetAllAsync(new QueryOptions<Tournament> { Includes = "Rounds, Rounds.Games, Rounds.Games.Team1, Rounds.Games.Team2, Rounds.Games.Team1.Players, Rounds.Games.Team2.Players" });
+            IEnumerable<Tournament> tournaments = await _tournaments.GetAllAsync(new QueryOptions<Tournament> { Includes = "Rounds, Rounds.Games, Rounds.Games.Team1, Rounds.Games.Team2, Rounds.Games.Team1.PlayerTeams, Rounds.Games.Team2.PlayerTeams" });
 
             ViewBag.TeamNames = new Dictionary<int, string>();
 
             foreach (Tournament tournament in tournaments)
             {
-                Team winningTeam = await _teams.GetByIdAsync(tournament.WinningTeamId, new QueryOptions<Team>{ Includes = "Players" });
+                Team winningTeam = await _teams.GetByIdAsync(tournament.WinningTeamId, new QueryOptions<Team>{ Includes = "PlayerTeams, PlayerTeams.Player" });
                 if (winningTeam != null)
                     ViewBag.TeamNames.TryAdd(tournament.TournamentId, winningTeam.Name);
             }
@@ -53,7 +53,7 @@ namespace NBAJam.Controllers
         {
             Tournament tournament = await _tournaments.GetByIdAsync(id, new QueryOptions<Tournament>
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
+                Includes = "PlayerTournaments.Player, TeamTournaments.Team, TeamTournaments.Team.PlayerTeams, TeamTournaments.Team.PlayerTeams.Player, Rounds, Rounds.Games",
             });
 
             ViewBag.Rounds = (int)Math.Ceiling(Math.Log2(tournament.PlayerTournaments.Count / 2.0));
@@ -71,7 +71,7 @@ namespace NBAJam.Controllers
 
             Team winningTeam = await _teams.GetByIdAsync(tournament.WinningTeamId, new QueryOptions<Team>
             {
-                Includes = "Players",
+                Includes = "PlayerTeams, PlayerTeams.Player",
             });
             ViewBag.WinningTeamName = winningTeam?.Name;
 
@@ -176,7 +176,7 @@ namespace NBAJam.Controllers
                 List<Team> teams = new List<Team>();
                 foreach (int teamId in teamTournamentViewModel.TeamIds)
                 {
-                    Team team = await _teams.GetByIdAsync(teamId, new QueryOptions<Team> { Includes = "Players" });
+                    Team team = await _teams.GetByIdAsync(teamId, new QueryOptions<Team> { Includes = "PlayerTeams, PlayerTeams.Player" });
                     teams.Add(team);
                 }
 
@@ -205,12 +205,12 @@ namespace NBAJam.Controllers
                 {
                     Team team1 = await _teams.GetByIdAsync(teamBracketPositionIds[i][0], new QueryOptions<Team>
                     {
-                        Includes = "Players",
+                        Includes = "PlayerTeams, PlayerTeams.Player",
                     });
 
                     Team team2 = await _teams.GetByIdAsync(teamBracketPositionIds[i][1], new QueryOptions<Team>
                     {
-                        Includes = "Players",
+                        Includes = "PlayerTeams, PlayerTeams.Player",
                     });
 
                     List<Team> teams = new List<Team>();
@@ -243,7 +243,7 @@ namespace NBAJam.Controllers
                 tournament.TeamTournaments.Clear();
                 foreach (int teamId in bracketSetupViewModel.TeamIds)
                 {
-                    Team newTeam = await _teams.GetByIdAsync(teamId, new QueryOptions<Team> { Includes = "Players, TeamTournaments" });
+                    Team newTeam = await _teams.GetByIdAsync(teamId, new QueryOptions<Team> { Includes = "PlayerTeams, PlayerTeams.Player, TeamTournaments" });
                     if (newTeam != null)
                     {
                         TeamTournament teamTournament = new TeamTournament() { Team = newTeam, TeamId = teamId, Tournament = tournament, TournamentId = bracketSetupViewModel.TournamentId };
@@ -301,7 +301,7 @@ namespace NBAJam.Controllers
                     for (int i = 0; i < players.Count / 2; i++)
                     {
                         Player player1 = randomPlayers[randomPlayers.Count - 1];
-                        Player player2 = randomPlayers[randomPlayers.Count - 2];                        
+                        Player player2 = randomPlayers[randomPlayers.Count - 2];
 
                         Team? existingTeam = null;
 
@@ -322,29 +322,35 @@ namespace NBAJam.Controllers
                         if (existingTeam == null)
                         {
                             existingTeam = new Team();
-                            await _teams.AddAsync(existingTeam);
+                           // await _teams.AddAsync(existingTeam);
 
                             PlayerTeam newPlayerTeam1 = new PlayerTeam() { Player = player1, PlayerId = player1.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
                             PlayerTeam newPlayerTeam2 = new PlayerTeam() { Player = player2, PlayerId = player2.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
-                            List<PlayerTeam> newPlayerTeams = new List<PlayerTeam>();
-                            newPlayerTeams.Add(newPlayerTeam1);
-                            newPlayerTeams.Add(newPlayerTeam2);
-                            existingTeam = new Team() { PlayerTeams = newPlayerTeams };
-                            await _teams.UpdateAsync(existingTeam);
+
+                            existingTeam.PlayerTeams.Add(newPlayerTeam1);
+                            existingTeam.PlayerTeams.Add(newPlayerTeam2);
+
+                           // await _teams.UpdateAsync(existingTeam);
                         }
-                        
-                        TeamTournament teamTournament = new TeamTournament() { Team = existingTeam, TeamId = existingTeam.TeamId, Tournament = tournament, TournamentId = playerTournamentViewModel.TournamentId };
-                        tournament.TeamTournaments.Add(teamTournament);
+
+                        //TeamTournament teamTournament = new TeamTournament() { Team = existingTeam, TeamId = existingTeam.TeamId, Tournament = tournament, TournamentId = playerTournamentViewModel.TournamentId };
+                       // tournament.TeamTournaments.Add(teamTournament);
+
+                        teams.Add(existingTeam);
+                        teamIds.Add(existingTeam.TeamId);
+
 
                         randomPlayers.RemoveAt(randomPlayers.Count - 1);
                         randomPlayers.RemoveAt(randomPlayers.Count - 1);
                     }
                 }
-
-                foreach (TeamTournament teamTournament in tournament.TeamTournaments)
+                else
                 {
-                    teams.Add(teamTournament.Team);
-                    teamIds.Add(teamTournament.TeamId);
+                    foreach (TeamTournament teamTournament in tournament.TeamTournaments)
+                    {
+                        teams.Add(teamTournament.Team);
+                        teamIds.Add(teamTournament.TeamId);
+                    }
                 }
 
                 return View(new TeamTournamentViewModel() { Name = tournament.Name, Players = players, Teams = teams, TournamentId = tournament.TournamentId, TeamIds = teamIds, PlayerIds = playerIds });
@@ -363,6 +369,8 @@ namespace NBAJam.Controllers
             });
 
             teamTournamentViewModel.PlayerIds.Clear();
+
+            teamTournamentViewModel.TeamIds.RemoveAll(i => i == 0);
 
             if (tournament != null)
             {
@@ -383,7 +391,7 @@ namespace NBAJam.Controllers
                     teamTournamentViewModel.PlayerIds.Add(player1Id);
                     teamTournamentViewModel.PlayerIds.Add(player2Id);
 
-                    var allTeams = await _teams.GetAllAsync();
+                    var allTeams = await _teams.GetAllAsync(new QueryOptions<Team> { Includes = "PlayerTeams, PlayerTeams.Player" });
 
                     Team? existingTeam = null;
 
@@ -415,10 +423,10 @@ namespace NBAJam.Controllers
 
                         PlayerTeam newPlayerTeam1 = new PlayerTeam() { Player = player1, PlayerId = player1.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
                         PlayerTeam newPlayerTeam2 = new PlayerTeam() { Player = player2, PlayerId = player2.PlayerId, Team = existingTeam, TeamId = existingTeam.TeamId };
-                        List<PlayerTeam> newPlayerTeams = new List<PlayerTeam>();
-                        newPlayerTeams.Add(newPlayerTeam1);
-                        newPlayerTeams.Add(newPlayerTeam2);
-                        existingTeam = new Team() { PlayerTeams = newPlayerTeams };
+
+                        existingTeam.PlayerTeams.Add(newPlayerTeam1);
+                        existingTeam.PlayerTeams.Add(newPlayerTeam2);
+                        
                         await _teams.UpdateAsync(existingTeam);
 
                         teamTournamentViewModel.TeamIds.Add(existingTeam.TeamId);                        
@@ -562,16 +570,16 @@ namespace NBAJam.Controllers
         {
             Game game = await _games.GetByIdAsync(gameId, new QueryOptions<Game>
             {
-                Includes = "Team1, Team2, Tournament, Team1.Players, Team2.Players"
+                Includes = "Team1, Team2, Tournament, Team1.PlayerTeams.Player, Team2.PlayerTeams.Player"
             });
 
             Team team1 = await _teams.GetByIdAsync(team1Id, new QueryOptions<Team> { 
-                Includes = "Players"
+                Includes = "PlayerTeams.Player"
             });
 
             Team team2 = await _teams.GetByIdAsync(team2Id, new QueryOptions<Team>
             {
-                Includes = "Players"
+                Includes = "PlayerTeams.Player"
             });
 
             game.Team1Points = team1Points;

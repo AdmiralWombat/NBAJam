@@ -25,7 +25,7 @@ namespace NBAJam.Controllers
         {
             var teams = await _teams.GetAllAsync(new QueryOptions<Team>
             {
-                Includes = "Players, TeamTournaments.Tournament"
+                Includes = "PlayerTeams, PlayerTeams.Player, TeamTournaments.Tournament"
             });
 
             if (teams != null)
@@ -48,30 +48,25 @@ namespace NBAJam.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            IEnumerable<Round> rounds = await _rounds.GetAllAsync();
-            foreach (Round round in rounds)
-            {
-                await _rounds.DeleteAsync(round.RoundId);
-                await _rounds.UpdateAsync(round);
+            Team buyTeam = await _teams.GetByIdAsync(1, new QueryOptions<Team> { });
 
-            }
 
-            IEnumerable<Game> games = await _games.GetAllAsync();
+            IEnumerable<Game> games = await _games.GetAllAsync(new QueryOptions<Game> { Includes = "Team1, Team2" });
             foreach (Game game in games)
             {
                 if (game.Team1?.TeamId == id)
                 {
-                    game.Team1 = null;
+                    game.Team1 = buyTeam;
                     await _games.UpdateAsync(game);
                 }
                 if (game.Team2?.TeamId == id)
                 {
-                    game.Team2 = null;
+                    game.Team2 = buyTeam;
                     await _games.UpdateAsync(game);
                 }
             }
 
-            IEnumerable<Tournament> tournaments = await _tournaments.GetAllAsync();
+            IEnumerable<Tournament> tournaments = await _tournaments.GetAllAsync(new QueryOptions<Tournament> { Includes = "TeamTournaments" });
             foreach (Tournament tournament in tournaments)
             {
                 foreach (TeamTournament teamTournament in tournament.TeamTournaments)
