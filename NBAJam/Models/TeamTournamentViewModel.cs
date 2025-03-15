@@ -12,6 +12,7 @@
 
         public int TournamentId { get; set; }
 
+        public bool RandomSetup { get; set; }
 
         public TeamTournamentViewModel()
         {

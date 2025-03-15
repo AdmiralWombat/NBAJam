@@ -156,33 +156,38 @@ namespace NBAJam.Controllers
         [HttpGet]
         public async Task<IActionResult> BracketSetup(TeamTournamentViewModel teamTournamentViewModel)
         {
-            Tournament tournament = await _tournaments.GetByIdAsync(teamTournamentViewModel.TournamentId, new QueryOptions<Tournament>
+            //Tournament tournament = await _tournaments.GetByIdAsync(teamTournamentViewModel.TournamentId, new QueryOptions<Tournament>
+            //{
+            //    Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
+            //});            
+
+            
+            ViewBag.Rounds = (int)Math.Ceiling(Math.Log2(teamTournamentViewModel.PlayerIds.Count / 2.0));
+            ViewBag.Games = new int[ViewBag.Rounds];
+
+            int gameCount = 1;
+            for (int i = ViewBag.Rounds - 1; i >= 0; i--)
             {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
-            });            
-
-            if (true)
-            {
-                ViewBag.Rounds = (int)Math.Ceiling(Math.Log2(teamTournamentViewModel.PlayerIds.Count / 2.0));
-                ViewBag.Games = new int[ViewBag.Rounds];
-
-                int gameCount = 1;
-                for (int i = ViewBag.Rounds - 1; i >= 0; i--)
-                {
-                    ViewBag.Games[i] = gameCount;
-                    gameCount *= 2;
-                }
-
-                List<Team> teams = new List<Team>();
-                foreach (int teamId in teamTournamentViewModel.TeamIds)
-                {
-                    Team team = await _teams.GetByIdAsync(teamId, new QueryOptions<Team> { Includes = "PlayerTeams, PlayerTeams.Player" });
-                    teams.Add(team);
-                }
-
-                return View(new BracketSetupViewModel() { TournamentName = teamTournamentViewModel.Name, Teams = teams, PlayerIds = teamTournamentViewModel.PlayerIds, TeamIds = teamTournamentViewModel.TeamIds});
+                ViewBag.Games[i] = gameCount;
+                gameCount *= 2;
             }
-            return RedirectToAction("Index");
+
+            List<Team> teams = new List<Team>();
+            foreach (int teamId in teamTournamentViewModel.TeamIds)
+            {
+                Team team = await _teams.GetByIdAsync(teamId, new QueryOptions<Team> { Includes = "PlayerTeams, PlayerTeams.Player" });
+                teams.Add(team);
+            }
+
+            if  (teamTournamentViewModel.RandomSetup)
+            {
+
+            }
+
+
+            return View(new BracketSetupViewModel() { TournamentName = teamTournamentViewModel.Name, Teams = teams, PlayerIds = teamTournamentViewModel.PlayerIds, TeamIds = teamTournamentViewModel.TeamIds});
+            
+           
         }
 
         [HttpPost]
@@ -192,6 +197,43 @@ namespace NBAJam.Controllers
             {
                 Includes = "PlayerTournaments.Player, TeamTournaments.Team, Rounds, Rounds.Games",
             });
+
+            if (tournament == null)
+            {
+                tournament = new Tournament() { Name = bracketSetupViewModel.TournamentName };
+                await _tournaments.AddAsync(tournament);
+
+                List<PlayerTournament> playerTournaments = new List<PlayerTournament>();
+                List<TeamTournament> teamTournaments = new List<TeamTournament>();
+
+                foreach (int playerId in bracketSetupViewModel.PlayerIds)
+                {
+                    Player player = await _players.GetByIdAsync(playerId, new QueryOptions<Player> { });
+                    if (player != null)
+                    {
+                        PlayerTournament playerTournament = new PlayerTournament() { Player = player, PlayerID = playerId, Tournament = tournament, TournamentId = tournament.TournamentId };
+                        playerTournaments.Add(playerTournament);
+                    }
+                }
+
+                foreach (int teamId in bracketSetupViewModel.TeamIds)
+                {
+                    Team team = await _teams.GetByIdAsync(teamId, new QueryOptions<Team> { });
+                    if (team != null)
+                    {
+                        TeamTournament teamTournament = new TeamTournament() { Team = team, TeamId = teamId, Tournament = tournament, TournamentId = tournament.TournamentId };
+                        teamTournaments.Add(teamTournament);
+                    }
+                }
+               
+                tournament.WinningTeamId = 0;
+                tournament.PlayerTournaments = playerTournaments;
+                tournament.TeamTournaments = teamTournaments;
+
+
+                await _tournaments.UpdateAsync(tournament);
+            }
+
 
             if (tournament != null)
             {
@@ -273,6 +315,8 @@ namespace NBAJam.Controllers
                 Includes = "PlayerTournaments.Player, TeamTournaments.Team"
             });
 
+            int tournamentId = 0;
+
             ViewBag.NumberOfTeams = playerTournamentViewModel.PlayersIds.Count / 2;
             
 
@@ -290,7 +334,7 @@ namespace NBAJam.Controllers
 
             List<Team> teams = new List<Team>();
             List<int> teamIds = new List<int>();
-            if (tournament != null && tournament.TeamTournaments != null)
+            if (tournament == null && playerTournamentViewModel != null)
             {
                 if (playerTournamentViewModel.RandomTeams)
                 {
@@ -344,35 +388,35 @@ namespace NBAJam.Controllers
                         randomPlayers.RemoveAt(randomPlayers.Count - 1);
                     }
                 }
-                else
+                
+            }
+            else
+            {
+                tournamentId = tournament.TournamentId;
+                foreach (TeamTournament teamTournament in tournament.TeamTournaments)
                 {
-                    foreach (TeamTournament teamTournament in tournament.TeamTournaments)
-                    {
-                        teams.Add(teamTournament.Team);
-                        teamIds.Add(teamTournament.TeamId);
-                    }
+                    teams.Add(teamTournament.Team);
+                    teamIds.Add(teamTournament.TeamId);
                 }
-
-                return View(new TeamTournamentViewModel() { Name = tournament.Name, Players = players, Teams = teams, TournamentId = tournament.TournamentId, TeamIds = teamIds, PlayerIds = playerIds });
             }
 
+            return View(new TeamTournamentViewModel() { Name = playerTournamentViewModel.Name, Players = players, Teams = teams, TournamentId = tournamentId, TeamIds = teamIds, PlayerIds = playerIds, RandomSetup = playerTournamentViewModel.RandomSetup });
 
-            return RedirectToAction("Index", "Tournament");
         }
 
         [HttpPost]
         public async Task<IActionResult> TeamSetup(TeamTournamentViewModel teamTournamentViewModel, int[][] playerTeamPositionIds)
         {
-            Tournament tournament = await _tournaments.GetByIdAsync(teamTournamentViewModel.TournamentId, new QueryOptions<Tournament>
-            {
-                Includes = "PlayerTournaments.Player, TeamTournaments.Team",
-            });
+            //Tournament tournament = await _tournaments.GetByIdAsync(teamTournamentViewModel.TournamentId, new QueryOptions<Tournament>
+            //{
+             //   Includes = "PlayerTournaments.Player, TeamTournaments.Team",
+            //});
 
             teamTournamentViewModel.PlayerIds.Clear();
 
             teamTournamentViewModel.TeamIds.RemoveAll(i => i == 0);
 
-            if (tournament != null)
+            if (teamTournamentViewModel != null)
             {
                 for (int i = 0; i < playerTeamPositionIds.Length; i++)
                 {
@@ -444,7 +488,7 @@ namespace NBAJam.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddEdit(int id)
+        public async Task<IActionResult> PlayerSetup(int id)
         {
             ViewBag.AllPlayers = await _players.GetAllAsync();
 
@@ -477,7 +521,7 @@ namespace NBAJam.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddEdit(PlayerTournamentViewModel playerTournamentViewModel, int[] playerIDs)
+        public async Task<IActionResult> PlayerSetup(PlayerTournamentViewModel playerTournamentViewModel, int[] playerIDs)
         {
             ViewBag.AllPlayers = await _players.GetAllAsync();
             ViewBag.TournamentPlayers = await _players.GetAllAsync();
@@ -486,14 +530,15 @@ namespace NBAJam.Controllers
             {          
                 if (playerTournamentViewModel.TournamentId == 0)
                 {
-                    Tournament newTournament = new Tournament() { Name = playerTournamentViewModel.Name };
-                    await _tournaments.AddAsync(newTournament);
+                    //Tournament newTournament = new Tournament() { Name = playerTournamentViewModel.Name };
+                   // await _tournaments.AddAsync(newTournament);
 
-                    playerTournamentViewModel.TournamentId = newTournament.TournamentId;
+                    //playerTournamentViewModel.TournamentId = newTournament.TournamentId;
                 }
                 else
                 {
                     playerTournamentViewModel.RandomTeams = false;
+                    playerTournamentViewModel.RandomSetup = false;
                 }
 
                 foreach (int playerId in playerIDs)

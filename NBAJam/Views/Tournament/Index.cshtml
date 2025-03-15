@@ -27,7 +27,7 @@
 </head>
 
 <h2>Tournaments </h2>
-<a asp-action="AddEdit" asp-controller="Tournament" class="btn btn-primary">Create New Tournament</a>
+<a asp-action="PlayerSetup" asp-controller="Tournament" class="btn btn-primary">Create New Tournament</a>
 
 <div class="row">
     @foreach (Tournament tournament in Model)
@@ -42,7 +42,7 @@
                     {
                         <h4>Winner: @ViewBag.TeamNames[tournament.TournamentId]</h4>
                     }
-                    <a asp-action="AddEdit" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">Edit</i></a>
+                    <a asp-action="PlayerSetup" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">Edit</i></a>
                     <a asp-action="TournamentView" asp-controller="Tournament" asp-route-id="@tournament.TournamentId" class="btn btn-info"><i class="bg-info bi-pencil-fill">View</i></a>
 
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(tournament.TournamentId)">

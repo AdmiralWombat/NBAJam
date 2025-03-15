@@ -108,7 +108,7 @@
         @await Component.InvokeAsync("CreatePlayer", new { returnToPlayerPage = false })
     </div>
 
-    <form asp-action="AddEdit" method="post" enctype="multipart/form-data">   
+    <form asp-action="PlayerSetup" method="post" enctype="multipart/form-data">   
         <input type="hidden" asp-for="TournamentId" />
 
         <div class="form-group">
@@ -120,6 +120,9 @@
         <div class="form-check">
             <input type="checkbox" asp-for="RandomTeams" checked />
             <label class="form-check-lable" for="RandomTeams">Random Teams</label>
+            <input type="checkbox" asp-for="RandomSetup" checked />
+            <label class="form-check-lable" for="RandomSetup">Random Setup</label>
+            
         </div>
 
         @foreach (Player player in ViewBag.AllPlayers)
