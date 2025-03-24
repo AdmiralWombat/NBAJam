@@ -5,6 +5,9 @@
         public List<Team> Teams { get; set; }
         public List<int> TeamIds { get; set; }
 
+        public List<Team> TeamsNoByes { get; set; }
+        public List<int> TeamIdsNoByes { get; set; }
+
         public List<Player> Players { get; set; }
         public List<int> PlayerIds { get; set; }
 
@@ -18,6 +21,8 @@
         {
             Teams = new List<Team>();
             TeamIds = new List<int>();
+            TeamsNoByes = new List<Team>();
+            TeamIdsNoByes = new List<int>();
             Players = new List<Player>();
             PlayerIds = new List<int>();
         }

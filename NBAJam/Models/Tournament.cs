@@ -16,11 +16,11 @@ namespace NBAJam.Models
         [NotMapped] public int TotalGames
         {
             get
-            {
+            {                
                 int totalGames = 0;
                 foreach (Round round in Rounds)
                 {
-                    foreach (Game game in round.Games)
+                    foreach (int gameId in round.GameIds)
                     {
                         totalGames++;
                     }
@@ -29,30 +29,13 @@ namespace NBAJam.Models
             }
         }
 
-        [NotMapped] public int GamesPlayed
-        {
-            get
-            {
-                int gamesPlayed = 0;
-                foreach (Round round in Rounds)
-                {
-                    foreach (Game game in round.Games)
-                    {
-                        if (game.GamePlayed)
-                            gamesPlayed++;
-                    }
-                }
-                return gamesPlayed;
-            }
-        }
-       
-
+        public int GamesPlayed { get; set; }
         public Tournament()
         {
             PlayerTournaments = new List<PlayerTournament>();
             TeamTournaments = new List<TeamTournament>();
             Rounds = new List<Round>();
-            
+            GamesPlayed = 0;
         }
     }
 }

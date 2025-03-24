@@ -3,87 +3,87 @@
 @{
     ViewBag.Title = "Bracket Setup";
 
-  
+
 }
 
 <head>
     <style>
         .bracket-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+        position: absolute;
+        width: 100%;
+        height: 100%;
         }
 
-            .bracket-container svg {
-                width: 100%; /* Make the SVG fill its container */
-                height: 100%; /* Make the SVG fill its container */
-                display: block; /* Prevents small space below SVG in some browsers */
-                position: absolute;
-                z-index: 0;
-            }
+        .bracket-container svg {
+        width: 100%; /* Make the SVG fill its container */
+        height: 100%; /* Make the SVG fill its container */
+        display: block; /* Prevents small space below SVG in some browsers */
+        position: absolute;
+        z-index: 0;
+        }
 
         .modal-high-zindex {
-            z-index: 1050; /* Adjust as needed */
+        z-index: 1050; /* Adjust as needed */
         }
 
         .svg-low-zindex {
-            z-index: 0;
+        z-index: 0;
         }
 
         .bracket-container .label-container {
-            position: absolute; /* Position the container absolutely */
-            display: flex; /* Use flexbox */
-            align-items: flex-end; /* Align items to the bottom */
-            left: 0px; /* Adjust the left position as needed */
-            height: 0; /* No height to avoid affecting layout */
+        position: absolute; /* Position the container absolutely */
+        display: flex; /* Use flexbox */
+        align-items: flex-end; /* Align items to the bottom */
+        left: 0px; /* Adjust the left position as needed */
+        height: 0; /* No height to avoid affecting layout */
         }
 
         .bracket-container .team-container {
-            height: 40px;
-            width: auto;
-            max-width: 170px;
-            cursor: move;
-            border: 2px solid black;
-            position: relative;
-            display: flex; /* Key for dynamic width */
-            align-items: center; /* Key for vertical centering */
-            padding: 0 10px; /* Add some padding for visual comfort */
-            box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
-            border-radius: 14px;
-            white-space: nowrap; /* Prevent text from wrapping */
-            min-width: 170px;
-            z-index: 3;
+        height: 40px;
+        width: auto;
+        max-width: 170px;
+        cursor: move;
+        border: 2px solid black;
+        position: relative;
+        display: flex; /* Key for dynamic width */
+        align-items: center; /* Key for vertical centering */
+        padding: 0 10px; /* Add some padding for visual comfort */
+        box-shadow: 0 0 10px rgba(0,0,0,.05), 2px 2px 5px rgba(0,0,0,.75);
+        border-radius: 14px;
+        white-space: nowrap; /* Prevent text from wrapping */
+        min-width: 170px;
+        z-index: 3;
         }
 
         .bracket-container .score-container {
-            height: 40px;
-            width: auto;
-            max-width: 50px;
-            position: relative;
-            display: flex; /* Key for dynamic width */
-            align-items: center; /* Key for vertical centering */
-            padding: 0 5px;
-            white-space: nowrap; /* Prevent text from wrapping */
-            min-width: 50px;
-            z-index: 3;
+        height: 40px;
+        width: auto;
+        max-width: 50px;
+        position: relative;
+        display: flex; /* Key for dynamic width */
+        align-items: center; /* Key for vertical centering */
+        padding: 0 5px;
+        white-space: nowrap; /* Prevent text from wrapping */
+        min-width: 50px;
+        z-index: 3;
         }
 
 
         .bracket-container .label {
-            font-weight: bold; /* Make the text bold */
-            background: none;
-            border: none;
-            padding: 0;
+        font-weight: bold; /* Make the text bold */
+        background: none;
+        border: none;
+        padding: 0;
         }
 
         .modal-backdrop {
-            z-index: -1;
+        z-index: -1;
         }
 
         .bracket-container .submit-button-container {
-            text-align: center;
-            margin-top: 20px; /* Add some space between bracket and button */
-            z-index: 3;
+        text-align: center;
+        margin-top: 20px; /* Add some space between bracket and button */
+        z-index: 3;
         }
     </style>
 </head>
@@ -107,7 +107,8 @@
     int topY = 50;
     int width = 200;
     Queue<int> yPointsPrevRound = new Queue<int>();
-    int maxBracketHeight = 0; 
+    int maxBracketHeight = 0;
+
 }
 
 <form asp-action="BracketSetup" method="post" enctype="multipart/form-data">
@@ -132,6 +133,7 @@
 
         @for (i = 0; i < ViewBag.Rounds; i++)
         {
+            int teamGameCount = 0;
             @for (int j = 0; j < ViewBag.Games[i]; j++)
             {
                 if (i == 0)
@@ -139,8 +141,8 @@
 
                     <svg class="svg-low-zindex">
                         <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
-                                  fill="none" stroke="black"
-                                  transform="translate(@(i * width), 0)" />
+                        fill="none" stroke="black"
+                        transform="translate(@(i * width), 0)" />
 
                     </svg>
 
@@ -159,8 +161,8 @@
 
                     <svg class="svg-low-zindex">
                         <polyline points="0, @topY @width, @topY @width, @(topY + bracketHeight) 0, @(topY + bracketHeight)"
-                                  fill="none" stroke="black"
-                                  transform="translate(@(i * width), 0)" />
+                        fill="none" stroke="black"
+                        transform="translate(@(i * width), 0)" />
 
                     </svg>
                 }
@@ -176,17 +178,26 @@
                             <div class="team-container" style="background:white">
                                 <select class="form-control label" id="team-0" name="teamBracketPositionIds[@j][@k]">
                                     <option value="">-- Select Team --</option>
+                                    @{
+                                        int teamCount = 0;
+                                    }
                                     @foreach (Team team in Model.Teams)
-                                    {                                    
-                                        <option value="@team.TeamId">
+                                    {
+                                        var temp = teamGameCount == teamCount;
+                                        <option value="@team.TeamId" selected="@(temp ? "selected" : null)">
                                             @team.Name
                                         </option>
-
+                                        teamCount++;
                                     }
+
+                                    
                                 </select>                        
                             </div>
                         </div>
+
+                        teamGameCount++;
                     }
+
                 }
 
                 yPointsPrevRound.Enqueue(topY);
@@ -194,7 +205,8 @@
 
 
                 topY += bracketHeight + 50;
-                maxBracketHeight = Math.Max(maxBracketHeight, topY);
+                maxBracketHeight = Math.Max(maxBracketHeight, topY);                
+
             }        
         }
         <div class="label-container" style="top: @(maxBracketHeight + 20)px;">

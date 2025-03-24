@@ -12,8 +12,8 @@ using NBAJam.Data;
 namespace NBAJam.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250310213816_init0")]
-    partial class init0
+    [Migration("20250324212752_gamesPlayedMigration")]
+    partial class gamesPlayedMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -235,9 +235,6 @@ namespace NBAJam.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GameId"));
 
-                    b.Property<int?>("RoundId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Team1Points")
                         .HasColumnType("int");
 
@@ -260,8 +257,6 @@ namespace NBAJam.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("GameId");
-
-                    b.HasIndex("RoundId");
 
                     b.HasIndex("Team1TeamId");
 
@@ -330,6 +325,10 @@ namespace NBAJam.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoundId"));
 
+                    b.Property<string>("GameIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("RoundNumber")
                         .HasColumnType("int");
 
@@ -392,6 +391,9 @@ namespace NBAJam.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TournamentId"));
+
+                    b.Property<int>("GamesPlayed")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -458,10 +460,6 @@ namespace NBAJam.Migrations
 
             modelBuilder.Entity("NBAJam.Models.Game", b =>
                 {
-                    b.HasOne("NBAJam.Models.Round", null)
-                        .WithMany("Games")
-                        .HasForeignKey("RoundId");
-
                     b.HasOne("NBAJam.Models.Team", "Team1")
                         .WithMany()
                         .HasForeignKey("Team1TeamId");
@@ -552,11 +550,6 @@ namespace NBAJam.Migrations
                     b.Navigation("PlayerTeams");
 
                     b.Navigation("PlayerTournaments");
-                });
-
-            modelBuilder.Entity("NBAJam.Models.Round", b =>
-                {
-                    b.Navigation("Games");
                 });
 
             modelBuilder.Entity("NBAJam.Models.Team", b =>

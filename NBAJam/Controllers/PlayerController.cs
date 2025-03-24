@@ -59,7 +59,7 @@ namespace NBAJam.Controllers
                 if (playerPage)
                     return RedirectToAction("Index");
                 else
-                    return RedirectToAction("AddEdit", "Tournament");
+                    return RedirectToAction("PlayerSetup", "Tournament");
             }
             return View(player);
         }

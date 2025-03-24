@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Bracket";
     List<Round> rounds = Model.Rounds;
+    Dictionary<int, List<Game>> roundGames = ViewBag.RoundGames;
 }
 <head>
     <style>
@@ -107,8 +108,8 @@
     }
 
     @for (i = 0; i < ViewBag.Rounds; i++)
-    {
-        List<Game>? games = rounds.ElementAtOrDefault(i)?.Games ?? null;
+    {       
+        List<Game>? games = roundGames.ContainsKey(i) ? roundGames[i] : null;
         int round = i + 1;
 
         @for (int j = 0; j < ViewBag.Games[i]; j++)
